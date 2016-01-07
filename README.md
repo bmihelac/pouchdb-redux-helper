@@ -2,6 +2,10 @@
 
 Helpers for working with PouchDB in React with Redux store.
 
+[![build status](https://img.shields.io/travis/bmihelac/pouchdb-redux-helper/master.svg?style=flat-square)](https://travis-ci.org/bmihelac/pouchdb-redux-helper)
+[![npm version](https://img.shields.io/npm/v/pouchdb-redux-helper.svg?style=flat-square)](https://www.npmjs.com/package/pouchdb-redux-helper)
+
+
 pouchdb-redux-helper consists of:
 
 * redux middleware
