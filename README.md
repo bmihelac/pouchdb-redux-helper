@@ -22,7 +22,28 @@ $ npm install pouchdb-redux-helper --save
 
 ## Quickstart
 
+1. Create CRUD for PouchDB database part:
+
 ```js
+const db = PouchDB('testdb');
+const projectsCrud = createCRUD(db, 'projects');
+```
+
+`projectsCrud` consist object with following:
+
+actions - actions that can be dispatched (allDocs, query, get, put, remove)
+actionTypes - action types for actions
+reducer - reducer
+mountPoint - where in store would reducer be mounted
+paths - paths for crud routes (list, detail, edit, create)
+urlPrefix - urlPrefix for resource form mountPoint
+
+2. Add pouchdbMiddleware for PouchDB database:
+
+```js
+import { pouchdbMiddleware } from 'pouchdb-redux-helper';
+const db = PouchDB('testdb');
+const middlewares = [pouchdbMiddleware(db)];
 ```
 
 ## TODO:

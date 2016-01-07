@@ -113,8 +113,8 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
   }
 
   return {
-    actionTypes,
     actions,
+    actionTypes,
     reducer,
     mountPoint,
     paths,
