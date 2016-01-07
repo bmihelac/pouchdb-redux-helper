@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "Helpers for working with PouchDB in React with Redux store.",
   "main": "lib/index.js",
+  "jsnext:main": "src/index.js",
   "files": [
     "lib",
     "src"
@@ -11,7 +12,22 @@
     "build": "babel src --out-dir lib",
     "test": "NODE_ENV=test babel-node `which tape` test/*.js | tap-dot"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bmihelac/pouchdb-redux-helper.git"
+  },
+  "keywords": [
+    "redux",
+    "state",
+    "pouchdb",
+    "immutable",
+    "flux"
+  ],
   "author": "Bojan Mihelac <bmihelac@mihelac.org>",
+  "bugs": {
+    "url": "https://github.com/bmihelac/pouchdb-redux-helper/issues"
+  },
+  "homepage": "https://github.com/bmihelac/pouchdb-redux-helper",
   "license": "MIT",
   "dependencies": {
     "uuid": "^2.0.1"
