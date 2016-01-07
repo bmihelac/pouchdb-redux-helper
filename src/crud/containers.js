@@ -74,7 +74,7 @@ export function connectList(crud, opts={}) {
 
 
 /**
- * Returns onSubmit handler that dispatch `put` action and `pushState` action.
+ * Returns onSubmit handler that dispatch `put` action
  *
  * @param {crud} crud
  * @returns {function}

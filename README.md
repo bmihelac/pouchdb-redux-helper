@@ -28,7 +28,6 @@ $ npm install pouchdb-redux-helper --save
 ## TODO:
 
 * Add quickstart
-* rename crudReducer.js to crud.js
 * upgrade babel to 6.x
 
 ## License

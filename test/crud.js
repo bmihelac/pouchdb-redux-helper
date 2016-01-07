@@ -1,81 +1,105 @@
-import './jsdom';
-import { shallow, render, mount } from 'enzyme';
-import React from 'react';
 import test from 'tape';
-import PouchDB from 'pouchdb';
-import { combineReducers, createStore } from 'redux'
-import { Provider } from 'react-redux';
+import { List, fromJS, Map } from 'immutable';
 
-import createCRUDReducer, { INITIAL_STATE } from '../src/crud/crudReducer';
-import {
-  createMapStateToProps,
-  connectList,
-} from '../src/crud/containers';
+import createCRUD, { INITIAL_STATE } from '../src/crud/crud';
+import db from './testDb';
+const crud = createCRUD(db, 'mountPoint');
+const {reducer, actionTypes} = crud;
 
-
-const db = PouchDB('db');
-const crud = createCRUDReducer(db, 'mountPoint');
-const folder = '';
-const queryOpts = {
-  fun: 'by_date',
-  key: folder,
-}
-const store = createStore(combineReducers({[crud.mountPoint]: crud.reducer}));
-
-
-const MyListComponent = ({ items }) => {
-  return (
-    <ul className="my-list">
-      { items.map(item => {
-        return (<li key={item.get('_id')}>{item.get('name')}</li>);
-      })}
-    </ul>
-  );
+const doc = {
+  _id: 'mydoc',
+  _rev: '1-5782E71F1E4BF698FA3793D9D5A96393',
+  title: 'Sound and Vision',
 }
 
-test('createMapStateToProps should return mapStateToProps function with `items` dictionary', t => {
-  const mapStateToProps = createMapStateToProps('mountPoint', '');
-  const result = mapStateToProps({mountPoint: INITIAL_STATE});
-  t.equal(result.items, null);
-  t.end()
-});
+const INITIAL_STATE_WITH_DOC = INITIAL_STATE.setIn(
+  ['documents', doc._id], fromJS(doc)
+).setIn(['folders', ''], List([doc._id]));
 
 
-test('test connectList without data should display loader component', t => {
-  const ListContainer = connectList(crud)(MyListComponent);
-  const result = render(<ListContainer store={store}/>);
-  t.equal(result.find('div.loading').length, 1);
+test('reducer should have initial state', t => {
+  const state = reducer(undefined, {});
+  t.ok(state instanceof Map, 'should be Map');
+  t.equal(state.get('folders'), Map());
+  t.equal(state.get('documents'), Map());
   t.end();
 });
 
-test('test connectList without data should trigger allDocs action', t => {
-  t.plan(1);
-  const crud = createCRUDReducer(db, 'mountPoint');
-  crud.actions.allDocs = (f, opts) => {
-    t.ok('actions.allDocs should be called');
-    return {type: 'foo'}
-  }
-  const ListContainer = connectList(crud)(MyListComponent);
-  const store = createStore(combineReducers({[crud.mountPoint]: crud.reducer}));
-  mount(<ListContainer store={store} />);
+test('reducer should handle ALL_DOCS action type', t => {
+  const payload = {
+    rows: [{
+      doc: doc,
+      id: doc._id
+    }]
+  };
+  const state = reducer(INITIAL_STATE, {
+    type: actionTypes.allDocs.success,
+    folder: '',
+    payload: payload
+  });
+  t.ok(state.get('folders').has(''), 'has folder');
+  t.equal(state.getIn(['folders', '', 0]), doc._id);
+  t.deepEqual(state.getIn(['documents', doc._id]).toObject(), doc);
+  t.end();
 });
 
-test('test connectList with data', t => {
-  const ListContainer = connectList(crud)(MyListComponent);
-  store.dispatch({
-    type: crud.actionTypes.allDocs.success,
-    payload: {
-      rows: [{
-        id: 'id-1',
-        doc: {_id: 'id-1', name: 'foo'},
-      }],
-    },
-    folder: '{}',
+test('reducer should handle QUERY action type', t => {
+  const payload = {
+    rows: [{
+      doc: doc,
+      id: doc._id
+    }]
+  };
+  const state = reducer(INITIAL_STATE, {
+    type: actionTypes.query.success,
+    folder: '',
+    payload: payload
   });
+  t.ok(state.get('folders').has(''), 'has folder');
+  t.equal(state.getIn(['folders', '', 0]), doc._id);
+  t.deepEqual(state.getIn(['documents', doc._id]).toObject(), doc);
+  t.end();
+});
 
-  const result = render(<ListContainer store={store}/>);
-  t.equal(result.find('ul.my-list').length, 1);
-  t.equal(result.find('ul.my-list > li').length, 1);
-  t.equal(result.find('ul.my-list > li').text(), 'foo');
-  t.end()
+test('reducer should handle PUT success', t => {
+  const initialState = INITIAL_STATE.setIn(['documents', doc._id], fromJS(doc));
+  const payload = {
+    ok: true,
+    rev: 'rev-2',
+    id: doc._id,
+  }
+  const state = reducer(initialState, {
+    type: actionTypes.put.success,
+    payload: payload,
+    doc: { ...doc, title: 'foo' }
+  });
+  const updatedDoc = state.getIn(['documents', doc._id]);
+  t.equal(updatedDoc.get('title'), 'foo');
+  t.equal(updatedDoc.get('_rev'), payload.rev);
+  t.end();
+});
+
+test('reducer should handle REMOVE success', t => {
+  const initialState = INITIAL_STATE.setIn(
+    ['documents', doc._id], fromJS(doc)
+  ).setIn(['folders', ''], List([doc._id]));
+  const state = reducer(initialState, {
+    type: actionTypes.remove.success,
+    payload: { id: doc._id },
+    doc: { ...doc }
+  });
+  t.equal(state.get('documents').count(), 0);
+  t.equal(state.getIn(['folders', '']).count(), 0);
+  t.end();
+});
+
+
+test('reducer should include paths', t => {
+  t.deepEqual(crud.paths, {
+    create: '/mountPoint/new/',
+    detail: '/mountPoint/:id/',
+    edit: '/mountPoint/:id/edit/',
+    list: '/mountPoint/',
+  });
+  t.end();
 });

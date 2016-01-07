@@ -20,7 +20,7 @@ export const INITIAL_STATE = Map({
  *
  * @returns {Object} contains `actionTypes`, `actions`, `reducer`
  */
-export default function createCRUDReducer(db, mountPoint, prefix=null, opts={}) {
+export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
   prefix = prefix || mountPoint;
   const urlPrefix = '/' + prefix;
 
