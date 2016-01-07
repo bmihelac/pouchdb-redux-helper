@@ -1,0 +1,107 @@
+import { Map, List, fromJS } from 'immutable';
+
+
+/*
+ * Returns immutablejs `List` from payload
+ */
+export function toList(payload) {
+  return List(payload.rows.map(row => fromJS(row.doc)));
+}
+
+
+/**
+ * findDocById
+ *
+ * @param {immutable.List} list
+ * @param {string} docId
+ * @returns {number}
+ */
+export function findDocById(list, docId) {
+  return list.findIndex(item => item.get('_id') === docId);
+}
+
+export function findDoc(list, doc) {
+  return findDocById(list, doc.get('_id'));
+}
+
+export function deleteDocFromList(list, doc) {
+  const index = findDoc(list, doc);
+  if (index === -1) {
+    return list;
+  }
+  return list.delete(index);
+}
+
+
+export function invalidateFolders(state) {
+  return state.set('folders', Map());
+}
+
+
+/*
+ * Replaces document `doc` in a given `list`
+ *
+ * Return original `list` if `doc` is not found
+ */
+export function setDocInList(list, doc) {
+  const index = findDoc(list, doc);
+  if (index === -1) {
+    return list;
+  }
+  return list.set(index, doc);
+}
+
+
+
+/**
+ * Returns object from state
+ *
+ * @param {object} state
+ * @param {string} mountPoint
+ * @param {object} docId
+ * @returns {immutable.Map}
+ */
+export const getObjectFromState = (state, mountPoint, docId) => {
+  return state[mountPoint].get('documents').get(docId);
+};
+
+
+
+/**
+ * createActionType
+ *
+ * @param {string} prefix
+ * @param {string} action
+ * @param {string} type
+ * @returns {string}
+ */
+export function createActionType(prefix, action, type) {
+  return `POUCHDB_${prefix}_${action}_${type}`;
+}
+
+
+/**
+ * markDocumentDeleted
+ *
+ * @param {immutable.Map} state
+ * @param {string} docId
+ * @returns {immutable.Map} new state
+ */
+export function markDocumentDeleted(state, docId) {
+  if (state.hasIn(['documents', docId])) {
+    return state;
+  }
+  return state.setIn(['documents', docId, '_deleted'], true);
+}
+
+
+/**
+ * createDetailLink
+ *
+ * @param urlPrefix
+ * @param docId
+ * @returns {string}
+ */
+export function createDetailLink(urlPrefix, docId) {
+  return urlPrefix + '/' + docId + '/';
+}
