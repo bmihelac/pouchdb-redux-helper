@@ -217,9 +217,9 @@ const routes = (
 
 ## Example app
 
-[Example app] http://bmihelac.github.io/pouchdb-redux-helper-example/
+[Example app](http://bmihelac.github.io/pouchdb-redux-helper-example/)
 
-[Example app source code] https://github.com/bmihelac/pouchdb-redux-helper-example
+[Example app source code](https://github.com/bmihelac/pouchdb-redux-helper-example)
 
 ## TODO:
 
