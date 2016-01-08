@@ -42,7 +42,7 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     return pouchdbActions.query(actionTypes.query, params, { folder });
   };
 
-  const get = function put(docId, params, opts) {
+  const get = function get(docId, params, opts) {
     return pouchdbActions.get(
       docId,
       actionTypes.get,
