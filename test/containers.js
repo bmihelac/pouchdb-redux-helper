@@ -10,6 +10,7 @@ import createCRUD, { INITIAL_STATE } from '../src/crud/crud';
 import {
   createMapStateToProps,
   connectList,
+  connectSingleItem,
 } from '../src/crud/containers';
 
 
@@ -21,6 +22,16 @@ const queryOpts = {
   key: folder,
 }
 const store = createStore(combineReducers({[crud.mountPoint]: crud.reducer}));
+const allDocsSuccessAction = {
+  type: crud.actionTypes.allDocs.success,
+  payload: {
+    rows: [{
+      id: 'id-1',
+      doc: {_id: 'id-1', name: 'foo'},
+    }],
+  },
+  folder: '{}',
+}
 
 
 const MyListComponent = ({ items }) => {
@@ -33,8 +44,13 @@ const MyListComponent = ({ items }) => {
   );
 }
 
+const MyDetailComponent = ({ item }) => (
+  <div className="my-detail">{item.get('name')}</div>
+);
+
+
 test('createMapStateToProps should return mapStateToProps function with `items` dictionary', t => {
-  const mapStateToProps = createMapStateToProps('mountPoint', '');
+  const mapStateToProps = createMapStateToProps('mountPoint', '', 'items');
   const result = mapStateToProps({mountPoint: INITIAL_STATE});
   t.equal(result.items, null);
   t.end()
@@ -62,20 +78,21 @@ test('test connectList without data should trigger allDocs action', t => {
 
 test('test connectList with data', t => {
   const ListContainer = connectList(crud)(MyListComponent);
-  store.dispatch({
-    type: crud.actionTypes.allDocs.success,
-    payload: {
-      rows: [{
-        id: 'id-1',
-        doc: {_id: 'id-1', name: 'foo'},
-      }],
-    },
-    folder: '{}',
-  });
+  store.dispatch(allDocsSuccessAction);
 
   const result = render(<ListContainer store={store}/>);
   t.equal(result.find('ul.my-list').length, 1);
   t.equal(result.find('ul.my-list > li').length, 1);
   t.equal(result.find('ul.my-list > li').text(), 'foo');
+  t.end()
+});
+
+
+test('test connectSingleItem with data', t => {
+  const Container = connectSingleItem(crud)(MyDetailComponent);
+  store.dispatch(allDocsSuccessAction);
+
+  const result = render(<Container docId={"id-1"} store={store}/>);
+  t.equal(result.find('div.my-detail').length, 1);
   t.end()
 });

@@ -5,7 +5,7 @@ import loading from './loading';
 import { getObjectFromState } from '../utils';
 
 
-export const createMapStateToProps = (mountPoint, folder='', propName='items') => function mapStateToPropsList(state) {
+export const createMapStateToProps = (mountPoint, folder='', propName) => function mapStateToPropsList(state) {
   if (!state[mountPoint].hasIn(['folders', folder])) {
     return { [propName]: null };
   }
@@ -30,8 +30,8 @@ function combineMapStateToProps(fun1, fun2) {
 }
 
 
-export const singleObjectMapStateToProps = (mountPoint, propName='items') => function singleObjectMapStateToProps(state) {
-  const id = state.router.params.id;
+export const singleObjectMapStateToProps = (mountPoint, propName) => function singleObjectMapStateToProps(state, ownProps) {
+  const id = ownProps.docId;
   return {
     id,
     [propName]: getObjectFromState(state, mountPoint, id),
@@ -40,7 +40,7 @@ export const singleObjectMapStateToProps = (mountPoint, propName='items') => fun
 
 
 export function connectList(crud, opts={}) {
-  const {options = {}, folder, customMapStateToProps, propName} = opts;
+  const {options = {}, folder, customMapStateToProps, propName = "items"} = opts;
   const toFolder = !folder ? JSON.stringify(options) : folder;
   const mapStateToProps = combineMapStateToProps(
     createMapStateToProps(crud.mountPoint, toFolder, propName),
@@ -107,12 +107,12 @@ export function createOnRemoveHandler(crud) {
 
 
 /**
- * Decorator connects passed component to include single object as `items`.
+ * Decorator connects passed component to include single document as `item`.
  *
  * @param {crud} crud
  */
 export function connectSingleItem(crud, opts={}) {
-  const { propName } = opts;
+  const { propName = 'item' } = opts;
   const mapStateToProps = singleObjectMapStateToProps(crud.mountPoint, propName);
   const loadFunction = c => { c.props.dispatch(crud.actions.get(c.props.id)); }
 
