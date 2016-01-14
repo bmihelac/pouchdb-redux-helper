@@ -141,7 +141,7 @@ Query options can be passed to PouchDB, such as query function, startkey, endkey
 etc. If state does not already contains `folder` with documents, they are loaded.
 
 ```js
-connectList(crud, opts={})
+connectList(crud, opts={}, mapStateToProps, mapDispatchToProps)
 ```
 
 ##### Options
@@ -152,8 +152,9 @@ connectList(crud, opts={})
       `query` will be executed, otherwise `allDocs` which starts with `mountPoint-`
   * `opts.folder`: folder where to save result. If empty this is serialized from
       `opts.options`
-  * `customMapStateToProps`: custom mapStateToProps function to merge
   * `propName="items"`: name of property to pass to wrapped component
+* `mapStateToProps`: custom mapStateToProps to delegate to `connect`
+* `mapDispatchToProps`: mapDispatchToProps to delegate to `connect`
 
 ##### Example usage
 

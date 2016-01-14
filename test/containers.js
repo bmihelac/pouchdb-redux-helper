@@ -87,6 +87,17 @@ test('test connectList with data', t => {
   t.end()
 });
 
+test.only('test connectList with mapStateToProps, mapDispatchToProps', t => {
+  const mapStateToProps = (state) => ({ foo: 'bar' });
+  const mapDispatchToProps = (dispatch) => ({ action: 'foo' });
+  const ListContainer = connectList(crud, {}, mapStateToProps, mapDispatchToProps)(
+    MyListComponent
+  );
+  const wrapper = shallow(<ListContainer store={store}/>);
+  t.equal(wrapper.prop('foo'), 'bar');
+  t.equal(wrapper.prop('action'), 'foo');
+  t.end();
+});
 
 test('test connectSingleItem with data', t => {
   const Container = connectSingleItem(crud)(MyDetailComponent);
