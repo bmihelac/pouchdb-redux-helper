@@ -87,7 +87,7 @@ test('test connectList with data', t => {
   t.end()
 });
 
-test.only('test connectList with mapStateToProps, mapDispatchToProps', t => {
+test('test connectList with mapStateToProps, mapDispatchToProps', t => {
   const mapStateToProps = (state) => ({ foo: 'bar' });
   const mapDispatchToProps = (dispatch) => ({ action: 'foo' });
   const ListContainer = connectList(crud, {}, mapStateToProps, mapDispatchToProps)(
