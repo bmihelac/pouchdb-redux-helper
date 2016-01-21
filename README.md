@@ -18,6 +18,8 @@ pouchdb-redux-helpers uses and depends on:
 
 * immutablejs for storing data
 
+pouchdb-redux-helper is currently considered experimental software.
+
 ## Installation
 
 ```
