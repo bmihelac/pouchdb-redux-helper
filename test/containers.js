@@ -5,6 +5,7 @@ import test from 'tape';
 import PouchDB from 'pouchdb';
 import { combineReducers, createStore } from 'redux'
 import { Provider } from 'react-redux';
+import db from './testDb';
 
 import createCRUD, { INITIAL_STATE } from '../src/crud/crud';
 import {
@@ -14,7 +15,6 @@ import {
 } from '../src/crud/containers';
 
 
-const db = PouchDB('db');
 const crud = createCRUD(db, 'mountPoint');
 const folder = '';
 const queryOpts = {
