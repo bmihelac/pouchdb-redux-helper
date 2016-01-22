@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "babel src --out-dir lib",
-    "test": "NODE_ENV=test babel-node `which tape` test/*.js | tap-dot"
+    "test": "NODE_ENV=test babel-node `which tape` test/*.js | tap-spec"
   },
   "repository": {
     "type": "git",
@@ -50,6 +50,7 @@
     "react-redux": "^2.1.2",
     "redux": "^3.0.0",
     "tap-dot": "^1.0.1",
+    "tap-spec": "^4.1.1",
     "tape": "^4.2.1"
   },
   "peerDependencies": {
