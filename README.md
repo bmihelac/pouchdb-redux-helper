@@ -18,6 +18,8 @@ pouchdb-redux-helpers uses and depends on:
 
 * redux-thunk for handling actions
 
+pouchdb-redux-helper is currently considered experimental software.
+
 ## Installation
 
 ```
