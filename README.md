@@ -10,7 +10,7 @@ pouchdb-redux-helper consists of:
 
 * `createCRUD` function for creating reducers, actionTypes, actions and route paths.
 
-* helper functions for connectiong components with store
+* helper functions for connecting components with store
 
 pouchdb-redux-helpers uses and depends on:
 
