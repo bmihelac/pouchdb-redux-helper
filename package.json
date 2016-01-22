@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "babel src --out-dir lib",
-    "test": "NODE_ENV=test babel-node `which tape` test/*.js | tap-dot"
+    "test": "NODE_ENV=test babel-node `which tape` test/*.js"
   },
   "repository": {
     "type": "git",
