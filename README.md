@@ -8,8 +8,6 @@ Helpers for working with PouchDB in React with Redux store.
 
 pouchdb-redux-helper consists of:
 
-* redux middleware for PouchDB api
-
 * `createCRUD` function for creating reducers, actionTypes, actions and route paths.
 
 * helper functions for connectiong components with store
@@ -17,6 +15,8 @@ pouchdb-redux-helper consists of:
 pouchdb-redux-helpers uses and depends on:
 
 * immutablejs for storing data
+
+* redux-thunk for handling actions
 
 ## Installation
 
@@ -92,7 +92,8 @@ It returns object consisting of:
 #### Example Usage
 
 ```js
-import { pouchdbMiddleware, createCRUD } from 'pouchdb-redux-helper';
+import thunk from 'redux-thunk';
+import { createCRUD } from 'pouchdb-redux-helper';
 //...
 const db = PouchDB('testdb');
 // get CRUD 
@@ -103,7 +104,7 @@ const reducers = combineReducers({
 });
 // create store
 const finalCreateStore = compose(
-  applyMiddleware(...[pouchdbMiddleware(db)]),
+  applyMiddleware(...[thunk]),
 )(createStore);
 const store = finalCreateStore(reducers);
 // allDocs action
@@ -117,20 +118,20 @@ store.dispatch(projectsCrud.actions.allDocs('all'));
 
 When previous example is executed, following will happen:
 
-1. middleware will dispatch `POUCHDB_projects_allDocs_request` action and
+1. thunk will dispatch `POUCHDB_projects_allDocs_request` action and
   execute PouchDB `allDocs` as promise.
 
 2. If promise resolves
 
-  2.1. Middleware will dispatch `POUCHDB_projects_allDocs_success`
+  2.1. thunk will dispatch `POUCHDB_projects_allDocs_success`
     action with result
 
   2.2. store will merge received documents with existing state in
     `state.projects.documents` and update document ids in
     `state.projects.folders.all` List.
 
-3. If error occurs middleware will dispatch `POUCHDB_projects_allDocs_failure`
-    action with error
+3. If error occurs `POUCHDB_projects_allDocs_failure` action will be dispatched
+    with error
 
 ### Connect containers helper functions
 
@@ -225,6 +226,13 @@ const routes = (
 ## TODO:
 
 * upgrade babel to 6.x
+
+## Changelog
+
+* 0.6.0
+    * use redux-thunk instead of custom middleware and service
+    * remove service, middleware modules
+    * remove `actions` in favor of `createPromiseAction`
 
 ## License
 
