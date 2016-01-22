@@ -103,6 +103,11 @@ test('reducer should include paths', t => {
 
 
 test('test crud action allDocs', t => {
+  const doc = {
+    _id: 'crud-alldocs',
+    title: 'Sound and Vision',
+  }
+
   db.put(doc).then(() => {
     let dispatchCounter = 0;
     const dispatch = action => {
