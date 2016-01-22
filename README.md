@@ -53,13 +53,14 @@ It returns object consisting of:
 * `actions`
 
     * `actions.allDocs(folder='', params)`
-    * `actions.query(folder='', params)`
+    * `actions.query(fun, folder='', params)`
     * `actions.get(docId, params, opts)`
     * `actions.put(doc, params, opts)`
     * `actions.remove(doc, params, opts)`
 
     Options for actions:
 
+    * `fun`: query function
     * `folder`: folder where to save document ids
     * `params`: params to delegate to pouchdb service method
     * `opts`: additional options to add to action
