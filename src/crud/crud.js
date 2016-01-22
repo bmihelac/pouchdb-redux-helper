@@ -1,5 +1,5 @@
 import { List, Map, fromJS } from 'immutable';
-import * as pouchdbActions from '../actions';
+import createPromiseAction from '../actions';
 import * as utils from '../utils';
 import { ACTIONS, TYPES } from '../constants';
 
@@ -34,39 +34,54 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     };
   };
 
-  const allDocs = function allDocs(folder='', params) {
-    return pouchdbActions.allDocs(actionTypes.allDocs, params, { folder });
+  const allDocs = (folder='', params) => {
+    const mergedParams = {
+      attachments: true,
+      include_docs: true,
+      ...params
+    }
+    return createPromiseAction(
+      () => db.allDocs(mergedParams),
+      actionTypes.allDocs,
+      {folder}
+    )
+  }
+
+  const query = function query(fun, folder='', params) {
+    const mergedParams = {
+      attachments: true,
+      include_docs: true,
+      ...params
+    }
+    return createPromiseAction(
+      () => db.query(fun, mergedParams),
+      actionTypes.query,
+      {folder}
+    )
   };
 
-  const query = function query(folder='', params) {
-    return pouchdbActions.query(actionTypes.query, params, { folder });
-  };
-
-  const get = function get(docId, params, opts) {
-    return pouchdbActions.get(
-      docId,
+  const get = function get(docId, params={}) {
+    return createPromiseAction(
+      () => db.get(docId, params),
       actionTypes.get,
-      params,
-      { ...defaultOpts }
-    );
+      {docId}
+    )
   }
 
-  const put = function put(doc, params, opts) {
-    return pouchdbActions.put(
-      doc,
+  const put = function put(doc, params) {
+    return createPromiseAction(
+      () => db.put(doc, params),
       actionTypes.put,
-      params,
-      { ...defaultOpts, ...opts, doc }
-    );
+      {doc}
+    )
   }
 
-  const remove = function remove(doc, params, opts) {
-    return pouchdbActions.remove(
-      doc,
+  const remove = function remove(doc, params) {
+    return createPromiseAction(
+      () => db.remove(doc, params),
       actionTypes.remove,
-      params,
-      { ...defaultOpts, ...opts, doc }
-    );
+      {doc}
+    )
   }
 
   const actions = {
