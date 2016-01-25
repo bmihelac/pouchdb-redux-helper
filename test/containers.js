@@ -1,10 +1,11 @@
+import test from 'tape';
+import React from 'react';
+import { applyMiddleware, compose, combineReducers, createStore } from 'redux'
+import { Provider } from 'react-redux';
 import './jsdom';
 import { shallow, render, mount } from 'enzyme';
-import React from 'react';
-import test from 'tape';
-import PouchDB from 'pouchdb';
-import { combineReducers, createStore } from 'redux'
-import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
+
 import db from './testDb';
 
 import createCRUD, { INITIAL_STATE } from '../src/crud/crud';
@@ -16,12 +17,10 @@ import {
 
 
 const crud = createCRUD(db, 'mountPoint');
-const folder = '';
-const queryOpts = {
-  fun: 'by_date',
-  key: folder,
-}
-const store = createStore(combineReducers({[crud.mountPoint]: crud.reducer}));
+const finalCreateStore = compose(
+  applyMiddleware(...[thunk]),
+)(createStore);
+const store = finalCreateStore(combineReducers({[crud.mountPoint]: crud.reducer}));
 const allDocsSuccessAction = {
   type: crud.actionTypes.allDocs.success,
   payload: {
@@ -97,6 +96,19 @@ test('test connectList with mapStateToProps, mapDispatchToProps', t => {
   t.equal(wrapper.prop('foo'), 'bar');
   t.equal(wrapper.prop('action'), 'foo');
   t.end();
+});
+
+
+test('test connectList with queryFunc', t => {
+  const queryFunc = () => {
+    t.ok(true, 'queryFunc should be called');
+    t.end();
+  };
+  const folder = 'queryFunc';
+  const ListContainer = connectList(crud, { queryFunc, folder })(
+    MyListComponent
+  );
+  mount(<ListContainer store={store} />);
 });
 
 test('test connectSingleItem with data', t => {

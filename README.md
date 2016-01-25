@@ -18,7 +18,7 @@ pouchdb-redux-helpers uses and depends on:
 
 * redux-thunk for handling actions
 
-pouchdb-redux-helper is currently considered experimental software.
+poouchdb-redux-helper is currently considered experimental software.
 
 ## Installation
 
@@ -152,6 +152,8 @@ connectList(crud, opts={}, mapStateToProps, mapDispatchToProps)
 
 * `crud`: crud obtained from `createCRUD`
 * `opts`:
+  * `opts.queryFunc`: Optional. Query function for loading data. If empty,
+      `crud.query` or `crud.allDocs` will be used.
   * `opts.options`: options to pass to PouchDB. If `options.fun` is given,
       `query` will be executed, otherwise `allDocs` which starts with `mountPoint-`
   * `opts.folder`: folder where to save result. If empty this is serialized from
@@ -232,6 +234,8 @@ const routes = (
 
 ## Changelog
 
+* 0.7.0
+    * add `queryFunc` option to `containers.connectList` options
 * 0.6.0
     * use redux-thunk instead of custom middleware and service
     * remove service, middleware modules

@@ -40,7 +40,7 @@ export const singleObjectMapStateToProps = (mountPoint, propName) => function si
 
 
 export function connectList(crud, opts={}, mapStateToProps, mapDispatchToProps) {
-  const {options = {}, folder, propName = 'items'} = opts;
+  const {options = {}, folder, propName = 'items', queryFunc} = opts;
   const toFolder = !folder ? JSON.stringify(options) : folder;
   const mergedMapStateToProps = combineMapStateToProps(
     createMapStateToProps(crud.mountPoint, toFolder, propName),
@@ -49,7 +49,9 @@ export function connectList(crud, opts={}, mapStateToProps, mapDispatchToProps) 
 
   return function(WrappedComponent) {
     let action;
-    if (options.fun) {
+    if (queryFunc) {
+      action = queryFunc;
+    } else if (options.fun) {
       const {fun, ...queryOptions} = options;
       action = crud.actions.query(
         fun,
