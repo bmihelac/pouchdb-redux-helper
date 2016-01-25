@@ -1,7 +1,6 @@
 import test from 'tape';
 import React from 'react';
 import { applyMiddleware, compose, combineReducers, createStore } from 'redux'
-import { Provider } from 'react-redux';
 import './jsdom';
 import { shallow, render, mount } from 'enzyme';
 import thunk from 'redux-thunk';
@@ -100,12 +99,15 @@ test('test connectList with mapStateToProps, mapDispatchToProps', t => {
 
 
 test('test connectList with queryFunc', t => {
-  const queryFunc = () => {
+  const pouchdbOptions = {};
+  const queryFunc = (options) => {
     t.ok(true, 'queryFunc should be called');
+    t.equal(options, pouchdbOptions, 'should have pouchdbOptions');
     t.end();
+    return db.allDocs();
   };
   const folder = 'queryFunc';
-  const ListContainer = connectList(crud, { queryFunc, folder })(
+  const ListContainer = connectList(crud, { queryFunc, folder, options: pouchdbOptions })(
     MyListComponent
   );
   mount(<ListContainer store={store} />);

@@ -3,6 +3,7 @@ import React, { Children, Component, cloneElement } from 'react';
 import { connect } from 'react-redux';
 import loading from './loading';
 import { getObjectFromState } from '../utils';
+import { createPromiseAction } from '../actions';
 
 
 export const createMapStateToProps = (mountPoint, folder='', propName) => function mapStateToPropsList(state) {
@@ -50,7 +51,11 @@ export function connectList(crud, opts={}, mapStateToProps, mapDispatchToProps) 
   return function(WrappedComponent) {
     let action;
     if (queryFunc) {
-      action = queryFunc;
+      action = createPromiseAction(
+        () => queryFunc(options),
+        crud.actionTypes.query,
+        {folder: toFolder}
+      );
     } else if (options.fun) {
       const {fun, ...queryOptions} = options;
       action = crud.actions.query(
