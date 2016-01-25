@@ -1,6 +1,6 @@
 import test from 'tape';
 
-import createPromiseAction from '../src/actions';
+import { createPromiseAction } from '../src/actions';
 import { TYPES } from '../src/constants';
 
 

@@ -13,7 +13,7 @@
  * @param [actionParams={}] - params to dispatch with every action
  * @returns function
  */
-export default function createPromiseAction(fun, actionTypes, actionParams={}) {
+export function createPromiseAction(fun, actionTypes, actionParams={}) {
   return (dispatch, getState) => {
     dispatch({
       type: actionTypes.request,
