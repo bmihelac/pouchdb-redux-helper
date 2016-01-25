@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "build": "babel src --out-dir lib",
+    "prepublish": "npm run-script build",
     "test": "NODE_ENV=test babel-node `which tape` test/*.js | tap-spec"
   },
   "repository": {
