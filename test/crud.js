@@ -14,6 +14,11 @@ const doc = {
   title: 'Sound and Vision',
 }
 
+test('crud has db', t => {
+  t.equal(crud.db, db);
+  t.end();
+});
+
 test('reducer should have initial state', t => {
   const state = reducer(undefined, {});
   t.ok(state instanceof Map, 'should be Map');

@@ -91,6 +91,10 @@ It returns object consisting of:
 
     urlPrefix for using in routes
 
+* `db`
+
+    PouchDB database
+
 
 #### Example Usage
 

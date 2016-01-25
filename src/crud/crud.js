@@ -134,5 +134,6 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     mountPoint,
     paths,
     urlPrefix,
+    db,
   }
 }
