@@ -1,11 +1,7 @@
 import test from 'tape';
 import React from 'react';
-import { applyMiddleware, compose, combineReducers, createStore } from 'redux'
 import './jsdom';
 import { shallow, render, mount } from 'enzyme';
-import thunk from 'redux-thunk';
-
-import db from './testDb';
 
 import createCRUD, { INITIAL_STATE } from '../src/crud/crud';
 import {
@@ -14,12 +10,13 @@ import {
   connectSingleItem,
 } from '../src/crud/containers';
 
+import db from './testDb';
+import createStore from './testStore';
+
 
 const crud = createCRUD(db, 'mountPoint');
-const finalCreateStore = compose(
-  applyMiddleware(...[thunk]),
-)(createStore);
-const store = finalCreateStore(combineReducers({[crud.mountPoint]: crud.reducer}));
+const store = createStore({[crud.mountPoint]: crud.reducer});
+
 const allDocsSuccessAction = {
   type: crud.actionTypes.allDocs.success,
   payload: {
@@ -70,7 +67,7 @@ test('test connectList without data should trigger allDocs action', t => {
     return {type: 'foo'}
   }
   const ListContainer = connectList(crud)(MyListComponent);
-  const store = createStore(combineReducers({[crud.mountPoint]: crud.reducer}));
+  const store = createStore({[crud.mountPoint]: crud.reducer});
   mount(<ListContainer store={store} />);
 });
 
@@ -112,6 +109,7 @@ test('test connectList with queryFunc', t => {
   );
   mount(<ListContainer store={store} />);
 });
+
 
 test('test connectSingleItem with data', t => {
   const Container = connectSingleItem(crud)(MyDetailComponent);
