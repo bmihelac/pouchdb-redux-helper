@@ -2,19 +2,16 @@ import uuid from 'uuid';
 import React, { Children, Component, cloneElement } from 'react';
 import { connect } from 'react-redux';
 import loading from './loading';
-import { getObjectFromState } from '../utils';
+import * as utils from '../utils';
 import { createPromiseAction } from '../actions';
 
 
 export const createMapStateToProps = (mountPoint, folder='', propName) => function mapStateToPropsList(state) {
-  if (!state[mountPoint].hasIn(['folders', folder])) {
+  if (!utils.hasFolder(state[mountPoint], folder)) {
     return { [propName]: null };
   }
-  const documents = state[mountPoint].get('documents');
-  const ids = state[mountPoint].getIn(['folders', folder]);
-  const items = ids.map(docId => documents.get(docId));
   return {
-    [propName]: items
+    [propName]: utils.getDocumentsInFolder(state[mountPoint], folder)
   };
 };
 
@@ -35,7 +32,7 @@ export const singleObjectMapStateToProps = (mountPoint, propName) => function si
   const id = ownProps.docId;
   return {
     id,
-    [propName]: getObjectFromState(state, mountPoint, id),
+    [propName]: utils.getObjectFromState(state, mountPoint, id),
   }
 };
 

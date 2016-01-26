@@ -33,8 +33,74 @@ export function deleteDocFromList(list, doc) {
 }
 
 
+export function getFoldersFromState(state) {
+  return state.get('folders');
+}
+
+
+export function getDocumentsFromState(state) {
+  return state.get('documents');
+}
+
+
+export function saveIdsInFolder(state, folder, ids) {
+  return state.setIn(['folders', folder], ids);
+}
+
+
+export function getIdsFromFolder(state, folder) {
+  return state.getIn(['folders', folder]);
+}
+
+
+export function hasFolder(state, folder) {
+  return state.hasIn(['folders', folder]);
+}
+
+
 export function invalidateFolders(state) {
   return state.set('folders', Map());
+}
+
+
+/**
+ * removeDocument from all folders and documents.
+ */
+export function removeDocument(state, id) {
+  let newState = state.deleteIn(['documents', id]);
+  newState.get('folders').map((list, k) => {
+    const index = list.indexOf(id)
+    if (index != -1) {
+      newState = newState.setIn(['folders', k], list.delete(index));
+    }
+  });
+  return newState;
+}
+
+export function getDocument(state, id) {
+  return state.get('documents').get(id);
+}
+
+export function setDocument(state, doc) {
+  return state.setIn(['documents', doc._id], fromJS(doc));
+}
+
+/**
+ * setDocuments merges documents in rows with existing documents.
+ */
+export function setDocuments(state, rows) {
+  const documents = Map(rows.map(row => [row.id, fromJS(row.doc)]));
+  return state.mergeIn(['documents'], documents);
+}
+
+
+/**
+ * getDocumentsInFolder returns documents for ids in given folder.
+ */
+export function getDocumentsInFolder(state, folder) {
+  const ids = getIdsFromFolder(state, folder);
+  const documents = state.get('documents');
+  return ids.map(docId => documents.get(docId));
 }
 
 
@@ -50,7 +116,6 @@ export function setDocInList(list, doc) {
   }
   return list.set(index, doc);
 }
-
 
 
 /**

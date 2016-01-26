@@ -97,24 +97,19 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
       case actionTypes.query.success:
       case actionTypes.allDocs.success:
         const ids = List(action.payload.rows.map(row => row.id));
-        const documents = Map(action.payload.rows.map(row => [row.id, fromJS(row.doc)]));
-        return state.setIn(['folders', action.folder], ids).mergeIn(['documents'], documents);
+        return utils.setDocuments(
+          utils.saveIdsInFolder(state, action.folder, ids),
+          action.payload.rows
+        )
       case actionTypes.put.success:
-        return state.setIn(['documents', action.payload.id], fromJS({
+        return utils.setDocument(state, {
           ...action.doc,
           _rev: action.payload.rev,
-        }));
-      case actionTypes.get.success:
-        return state.setIn(['documents', action.payload._id], fromJS(action.payload));
-      case actionTypes.remove.success:
-        let newState = state.deleteIn(['documents', action.payload.id]);
-        newState.get('folders').map((list, k) => {
-          const index = list.indexOf(action.payload.id)
-          if (index != -1) {
-            newState = newState.setIn(['folders', k], list.delete(index));
-          }
         });
-        return newState;
+      case actionTypes.get.success:
+        return utils.setDocument(state, action.payload);
+      case actionTypes.remove.success:
+        return utils.removeDocument(state, action.payload.id);
       default:
         return state;
     }

@@ -1,9 +1,10 @@
 /* globals emit */
 
 import test from 'tape';
-import { List, fromJS, Map } from 'immutable';
+import { List, Map } from 'immutable';
 
 import createCRUD, { INITIAL_STATE } from '../src/crud/crud';
+import * as utils from '../src/utils';
 import db from './testDb';
 const crud = createCRUD(db, 'mountPoint');
 const {reducer, actionTypes} = crud;
@@ -22,8 +23,8 @@ test('crud has db', t => {
 test('reducer should have initial state', t => {
   const state = reducer(undefined, {});
   t.ok(state instanceof Map, 'should be Map');
-  t.equal(state.get('folders'), Map());
-  t.equal(state.get('documents'), Map());
+  t.equal(utils.getFoldersFromState(state), Map());
+  t.equal(utils.getDocumentsFromState(state), Map());
   t.end();
 });
 
@@ -39,9 +40,9 @@ test('reducer should handle ALL_DOCS action type', t => {
     folder: '',
     payload: payload
   });
-  t.ok(state.get('folders').has(''), 'has folder');
-  t.equal(state.getIn(['folders', '', 0]), doc._id);
-  t.deepEqual(state.getIn(['documents', doc._id]).toObject(), doc);
+  t.ok(utils.hasFolder(state, ''), 'has folder');
+  t.equal(utils.getIdsFromFolder(state, '').get(0), doc._id);
+  t.deepEqual(utils.getDocument(state, doc._id).toObject(), doc);
   t.end();
 });
 
@@ -57,14 +58,14 @@ test('reducer should handle QUERY action type', t => {
     folder: '',
     payload: payload
   });
-  t.ok(state.get('folders').has(''), 'has folder');
-  t.equal(state.getIn(['folders', '', 0]), doc._id);
-  t.deepEqual(state.getIn(['documents', doc._id]).toObject(), doc);
+  t.ok(utils.hasFolder(state, ''), 'has folder');
+  t.equal(utils.getIdsFromFolder(state, '').get(0), doc._id);
+  t.deepEqual(utils.getDocument(state, doc._id).toObject(), doc);
   t.end();
 });
 
 test('reducer should handle PUT success', t => {
-  const initialState = INITIAL_STATE.setIn(['documents', doc._id], fromJS(doc));
+  const initialState = utils.setDocument(INITIAL_STATE, doc);
   const payload = {
     ok: true,
     rev: 'rev-2',
@@ -75,23 +76,24 @@ test('reducer should handle PUT success', t => {
     payload: payload,
     doc: { ...doc, title: 'foo' }
   });
-  const updatedDoc = state.getIn(['documents', doc._id]);
+  const updatedDoc = utils.getDocument(state, doc._id);
   t.equal(updatedDoc.get('title'), 'foo');
   t.equal(updatedDoc.get('_rev'), payload.rev);
   t.end();
 });
 
 test('reducer should handle REMOVE success', t => {
-  const initialState = INITIAL_STATE.setIn(
-    ['documents', doc._id], fromJS(doc)
-  ).setIn(['folders', ''], List([doc._id]));
+  const initialState = utils.setDocument(
+    utils.saveIdsInFolder(INITIAL_STATE, '', List([doc._id])),
+    doc
+  )
   const state = reducer(initialState, {
     type: actionTypes.remove.success,
     payload: { id: doc._id },
     doc: { ...doc }
   });
-  t.equal(state.get('documents').count(), 0);
-  t.equal(state.getIn(['folders', '']).count(), 0);
+  t.equal(utils.getDocumentsFromState(state).count(), 0);
+  t.equal(utils.getIdsFromFolder(state, '').count(), 0);
   t.end();
 });
 
