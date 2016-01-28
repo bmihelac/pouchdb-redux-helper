@@ -38,8 +38,23 @@ export function getFoldersFromState(state) {
 }
 
 
+export function getFolderFromState(state, folder) {
+  return getFoldersFromState(state).get(folder);
+}
+
+
 export function getDocumentsFromState(state) {
   return state.get('documents');
+}
+
+
+export function saveFolderVars(state, folder, vars) {
+  return state.setIn(['folders', folder, 'vars'], fromJS(vars));
+}
+
+
+export function getFolderVars(state, folder) {
+  return state.getIn(['folders', folder, 'vars']);
 }
 
 

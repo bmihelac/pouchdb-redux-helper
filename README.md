@@ -52,8 +52,8 @@ It returns object consisting of:
 
 * `actions`
 
-    * `actions.allDocs(folder='', params)`
-    * `actions.query(fun, folder='', params)`
+    * `actions.allDocs(folder='', params, opts)`
+    * `actions.query(fun, folder='', params, opts)`
     * `actions.get(docId, params, opts)`
     * `actions.put(doc, params, opts)`
     * `actions.remove(doc, params, opts)`
@@ -238,6 +238,9 @@ const routes = (
 
 ## Changelog
 
+* 0.8.0
+    * pass additional `opts` in `query` and `allDocs` actions and save them
+      in folder as `folderVars`
 * 0.7.0
     * add `queryFunc` option to `containers.connectList` options
 * 0.6.0

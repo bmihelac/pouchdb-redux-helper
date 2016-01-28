@@ -3,6 +3,7 @@
 import test from 'tape';
 import { List, Map } from 'immutable';
 
+import { createPromiseAction } from '../src/actions';
 import createCRUD, { INITIAL_STATE } from '../src/crud/crud';
 import * as utils from '../src/utils';
 import db from './testDb';
@@ -14,6 +15,12 @@ const doc = {
   _rev: '1-5782E71F1E4BF698FA3793D9D5A96393',
   title: 'Sound and Vision',
 }
+const allDocsPayload = {
+  rows: [{
+    doc: doc,
+    id: doc._id
+  }]
+};
 
 test('crud has db', t => {
   t.equal(crud.db, db);
@@ -29,16 +36,10 @@ test('reducer should have initial state', t => {
 });
 
 test('reducer should handle ALL_DOCS action type', t => {
-  const payload = {
-    rows: [{
-      doc: doc,
-      id: doc._id
-    }]
-  };
   const state = reducer(INITIAL_STATE, {
     type: actionTypes.allDocs.success,
     folder: '',
-    payload: payload
+    payload: allDocsPayload,
   });
   t.ok(utils.hasFolder(state, ''), 'has folder');
   t.equal(utils.getIdsFromFolder(state, '').get(0), doc._id);
@@ -47,20 +48,28 @@ test('reducer should handle ALL_DOCS action type', t => {
 });
 
 test('reducer should handle QUERY action type', t => {
-  const payload = {
-    rows: [{
-      doc: doc,
-      id: doc._id
-    }]
-  };
   const state = reducer(INITIAL_STATE, {
     type: actionTypes.query.success,
     folder: '',
-    payload: payload
+    payload: allDocsPayload,
   });
   t.ok(utils.hasFolder(state, ''), 'has folder');
   t.equal(utils.getIdsFromFolder(state, '').get(0), doc._id);
   t.deepEqual(utils.getDocument(state, doc._id).toObject(), doc);
+  t.end();
+});
+
+
+test('test folderVars', t => {
+  const state = reducer(INITIAL_STATE, {
+    type: actionTypes.query.success,
+    folder: '',
+    payload: allDocsPayload,
+    foo: 'bar',
+  });
+  const folderVars = utils.getFolderVars(state, '');
+  t.equal(folderVars.size, 1, 'should have 1 var');
+  t.equal(folderVars.get('foo'), 'bar', 'foo var should be saved in state');
   t.end();
 });
 
@@ -278,4 +287,3 @@ test('test crud action remove', t => {
     remove(dispatch);
   });
 });
-

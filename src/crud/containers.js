@@ -11,7 +11,8 @@ export const createMapStateToProps = (mountPoint, folder='', propName) => functi
     return { [propName]: null };
   }
   return {
-    [propName]: utils.getDocumentsInFolder(state[mountPoint], folder)
+    [propName]: utils.getDocumentsInFolder(state[mountPoint], folder),
+    folderVars: utils.getFolderVars(state[mountPoint], folder),
   };
 };
 
@@ -37,9 +38,14 @@ export const singleObjectMapStateToProps = (mountPoint, propName) => function si
 };
 
 
+export function folderNameFromOpts(options) {
+  return JSON.stringify(options);
+}
+
+
 export function connectList(crud, opts={}, mapStateToProps, mapDispatchToProps) {
-  const {options = {}, folder, propName = 'items', queryFunc} = opts;
-  const toFolder = !folder ? JSON.stringify(options) : folder;
+  const {options = {}, folder, propName = 'items', queryFunc, ...folderVars} = opts;
+  const toFolder = folder || folderNameFromOpts(options);
   const mergedMapStateToProps = combineMapStateToProps(
     createMapStateToProps(crud.mountPoint, toFolder, propName),
     mapStateToProps
@@ -51,14 +57,15 @@ export function connectList(crud, opts={}, mapStateToProps, mapDispatchToProps) 
       action = createPromiseAction(
         () => queryFunc(options),
         crud.actionTypes.query,
-        {folder: toFolder}
+        {...folderVars, folder: toFolder}
       );
     } else if (options.fun) {
       const {fun, ...queryOptions} = options;
       action = crud.actions.query(
         fun,
         toFolder,
-        queryOptions
+        queryOptions,
+        folderVars
       );
     } else {
       action = crud.actions.allDocs(
@@ -66,7 +73,7 @@ export function connectList(crud, opts={}, mapStateToProps, mapDispatchToProps) 
           startkey: crud.mountPoint + '-',
           endkey: crud.mountPoint + '-\uffff',
           ...options
-      });
+      }, folderVars);
     }
     const loadFunction = c => {
       c.props.dispatch(action);

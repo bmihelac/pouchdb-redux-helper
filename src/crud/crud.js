@@ -34,7 +34,7 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     };
   };
 
-  const allDocs = (folder='', params) => {
+  const allDocs = (folder='', params, opts) => {
     const mergedParams = {
       attachments: true,
       include_docs: true,
@@ -43,11 +43,11 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     return createPromiseAction(
       () => db.allDocs(mergedParams),
       actionTypes.allDocs,
-      {folder}
+      {...opts, folder}
     )
   }
 
-  const query = function query(fun, folder='', params) {
+  const query = function query(fun, folder='', params, opts) {
     const mergedParams = {
       attachments: true,
       include_docs: true,
@@ -56,31 +56,31 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     return createPromiseAction(
       () => db.query(fun, mergedParams),
       actionTypes.query,
-      {folder}
+      {...opts, folder}
     )
   };
 
-  const get = function get(docId, params={}) {
+  const get = function get(docId, params={}, opts) {
     return createPromiseAction(
       () => db.get(docId, params),
       actionTypes.get,
-      {docId}
+      {...opts, docId}
     )
   }
 
-  const put = function put(doc, params) {
+  const put = function put(doc, params, opts) {
     return createPromiseAction(
       () => db.put(doc, params),
       actionTypes.put,
-      {doc}
+      {...opts, doc}
     )
   }
 
-  const remove = function remove(doc, params) {
+  const remove = function remove(doc, params, opts) {
     return createPromiseAction(
       () => db.remove(doc, params),
       actionTypes.remove,
-      {doc}
+      {...opts, doc}
     )
   }
 
@@ -97,9 +97,14 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
       case actionTypes.query.success:
       case actionTypes.allDocs.success:
         const ids = List(action.payload.rows.map(row => row.id));
+        const {type, folder, payload, ...opts} = action;
         return utils.setDocuments(
-          utils.saveIdsInFolder(state, action.folder, ids),
-          action.payload.rows
+          utils.saveFolderVars(
+            utils.saveIdsInFolder(state, folder, ids),
+            folder,
+            opts
+          ),
+          payload.rows
         )
       case actionTypes.put.success:
         return utils.setDocument(state, {
