@@ -226,6 +226,10 @@ const routes = (
 );
 ```
 
+### Pagination
+
+TODO: add example, docs
+
 ## Example app
 
 [Example app](http://bmihelac.github.io/pouchdb-redux-helper-example/)
@@ -239,6 +243,7 @@ const routes = (
 ## Changelog
 
 * 0.8.0
+    * pagination suport
     * pass additional `opts` in `query` and `allDocs` actions and save them
       in folder as `folderVars`
 * 0.7.0
