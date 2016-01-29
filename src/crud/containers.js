@@ -25,7 +25,11 @@ export const createMapStateToProps = (mountPoint, folder='', propName) => functi
  * @returns {object} combined stateProps
  */
 function combineMapStateToProps(fun1, fun2) {
-  return state => Object.assign({}, fun1(state), fun2 ? fun2(state) : null)
+  return (state, ownProps) => Object.assign(
+    {},
+    fun1(state, ownProps),
+    fun2 ? fun2(state, ownProps) : null
+  )
 }
 
 
@@ -124,12 +128,15 @@ export function createOnRemoveHandler(crud) {
  *
  * @param {crud} crud
  */
-export function connectSingleItem(crud, opts={}) {
+export function connectSingleItem(crud, opts={}, mapStateToProps, mapDispatchToProps) {
   const { propName = 'item' } = opts;
-  const mapStateToProps = singleObjectMapStateToProps(crud.mountPoint, propName);
   const loadFunction = c => { c.props.dispatch(crud.actions.get(c.props.id)); }
+  const mergedMapStateToProps = combineMapStateToProps(
+    singleObjectMapStateToProps(crud.mountPoint, propName),
+    mapStateToProps
+  )
 
   return function(WrappedComponent) {
-    return connect(mapStateToProps)(loading(loadFunction, { propName })(WrappedComponent));
+    return connect(mergedMapStateToProps, mapDispatchToProps)(loading(loadFunction, { propName })(WrappedComponent));
   }
 };
