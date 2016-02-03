@@ -1,4 +1,10 @@
-import { connectList, folderNameFromOpts } from './containers';
+import {
+  connectList,
+  folderNameFromOpts,
+  createMapStateToProps,
+  createListAction,
+  wrap,
+} from './containers';
 
 
 export const defaultOpts = {
@@ -6,32 +12,46 @@ export const defaultOpts = {
 }
 
 
-function paginationFolderSuffix(opts) {
-  return `/page/${opts.rowsPerPage}/${opts.startkey || ''}`;
+function paginationFolderSuffix(rowsPerPage, startkey) {
+  return `/page/${rowsPerPage}/${startkey || ''}`;
 }
 
-export function applyPagination (paginationOpts={}, connectListOpts={}) {
-  const opts = Object.assign({}, defaultOpts, paginationOpts);
-  const newConnectListOpts = Object.assign({}, connectListOpts);
-  const defaultFolder = connectListOpts.folder || folderNameFromOpts(connectListOpts);
 
-  newConnectListOpts.options = Object.assign({}, newConnectListOpts.options);
-  newConnectListOpts.options.limit = opts.rowsPerPage + 1;
-  newConnectListOpts.folder = defaultFolder + paginationFolderSuffix(opts);
-  newConnectListOpts.rowsPerPage = opts.rowsPerPage;
+export function createMapStateToPropsPagination(paginationOpts={}, crud, opts={}, mapStateToProps) {
 
-  if (opts.startkey) {
-    newConnectListOpts.options.startkey = opts.startkey;
+  return (state, ownProps) => {
+    let props = mapStateToProps ? mapStateToProps(state, ownProps) : {};
+    const { rowsPerPage, startkey, prevStartkey } = Object.assign({}, defaultOpts, paginationOpts, props);
+    const finalOpts = Object.assign(
+      {},
+      opts,
+      props.listOpts,
+    )
+    const {options={}, folder, propName = 'items', queryFunc, ...folderVars} = finalOpts;
+    finalOpts.options = Object.assign({}, finalOpts.options, { limit: rowsPerPage+1, startkey });
+    const paginatedFolderVars = Object.assign(
+      folderVars,
+      { prevStartkey, rowsPerPage }
+    )
+    const toFolder = (folder || folderNameFromOpts(options)) + paginationFolderSuffix(rowsPerPage, startkey);
+
+    Object.assign(
+      props,
+      createMapStateToProps(crud.mountPoint, toFolder, propName)(state)
+    );
+
+    props.action = createListAction(crud, toFolder, finalOpts, paginatedFolderVars);
+    return props;
   }
-  if (opts.prevStartkey) {
-    newConnectListOpts.prevStartkey = opts.prevStartkey;
-  }
-  return newConnectListOpts;
+
 }
-
 
 export default function paginate (paginationOpts, crud, connectListOpts, mapStateToProps, mapDispatchToProps) {
-  const paginatedListOpts = applyPagination(paginationOpts, connectListOpts);
-  return connectList(crud, paginatedListOpts, mapStateToProps, mapDispatchToProps);
+  const mapStateToPropsFinal = createMapStateToPropsPagination(
+    paginationOpts,
+    crud,
+    connectListOpts,
+    mapStateToProps
+  );
+  return wrap(mapStateToPropsFinal, mapDispatchToProps);
 }
-

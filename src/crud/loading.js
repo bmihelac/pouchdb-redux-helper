@@ -38,25 +38,25 @@ export default function loading(loadFunction, opts={}) {
       }
 
       getLoadingText() {
-        return this.props.propName || options.propName;
+        return this.props.loadingText || options.loadingText;
       }
 
       hasItems() {
-        return this.props[this.getPropName()];
+        return !!this.props[this.getPropName()];
       }
 
       getAction() {
         return this.props.action || opts.action;
       }
 
+      getLoadFunction() {
+        return opts.loadFunction;
+      }
+
       componentDidMount = () => {
         if (!this.hasItems()) {
           const action = this.getAction();
-          if (action) {
-            this.props.dispatch(action);
-          } else {
-            this.getLoadFunction()(this);
-          }
+          action ? this.props.dispatch(action()) : this.getLoadFunction()(this);
         }
       }
 

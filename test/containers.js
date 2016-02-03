@@ -8,6 +8,7 @@ import {
   createMapStateToProps,
   connectList,
   connectSingleItem,
+  createListMapStateToProps,
 } from '../src/crud/containers';
 
 import db from './testDb';
@@ -107,6 +108,30 @@ test('test connectList with queryFunc', t => {
   const ListContainer = connectList(crud, { queryFunc, folder, options: pouchdbOptions })(
     MyListComponent
   );
+  mount(<ListContainer store={store} />);
+});
+
+
+test('test connectList with opts from mapStateToProps', t => {
+  const crud = createCRUD(db, 'mountPoint');
+  const folder = 'folderFoo';
+  crud.actions.allDocs = (f, params, opts) => {
+    t.equal(f, folder, 'folder should be set');
+    t.equal(params.startkey, 'a', 'params should be set');
+    t.equal(opts.folderParam1, 'foo', 'opts should be set');
+    t.end();
+    return {type: 'foo'};
+  }
+  const store = createStore({[crud.mountPoint]: crud.reducer});
+  const ListContainer = connectList(crud, {}, state => ({
+    listOpts: {
+      folder,
+      options: {
+        startkey: 'a',
+      },
+      folderParam1: 'foo',
+    }
+  }))(MyListComponent);
   mount(<ListContainer store={store} />);
 });
 

@@ -7,7 +7,7 @@ export const actions = [];
 const actionsLogger = store => next => action => {
   let result = next(action)
   actions.push(result);
-  return result
+  return result;
 }
 
 export default function finalCreateStore(reducers) {

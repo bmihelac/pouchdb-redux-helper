@@ -238,6 +238,7 @@ TODO: add example, docs
 
 ## TODO:
 
+* simplify connectList
 * upgrade babel to 6.x
 
 ## Changelog

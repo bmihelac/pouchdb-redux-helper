@@ -47,46 +47,74 @@ export function folderNameFromOpts(options) {
 }
 
 
-export function connectList(crud, opts={}, mapStateToProps, mapDispatchToProps) {
-  const {options = {}, folder, propName = 'items', queryFunc, ...folderVars} = opts;
-  const toFolder = folder || folderNameFromOpts(options);
-  const mergedMapStateToProps = combineMapStateToProps(
-    createMapStateToProps(crud.mountPoint, toFolder, propName),
-    mapStateToProps
-  );
+export function createListAction(crud, folder, opts, folderVars) {
+  const { options={} } = opts;
 
-  return function(WrappedComponent) {
-    let action;
-    if (queryFunc) {
-      action = createPromiseAction(
-        () => queryFunc(options),
+  return () => {
+    if (opts.queryFunc) {
+      return createPromiseAction(
+        () => opts.queryFunc(options),
         crud.actionTypes.query,
-        {...folderVars, folder: toFolder}
+        {...folderVars, folder}
       );
     } else if (options.fun) {
-      const {fun, ...queryOptions} = options;
-      action = crud.actions.query(
+      const {fun, ...queryOptions} = options.fun;
+      return crud.actions.query(
         fun,
-        toFolder,
+        folder,
         queryOptions,
         folderVars
       );
     } else {
-      action = crud.actions.allDocs(
-          toFolder, {
+      return crud.actions.allDocs(
+        folder, {
           startkey: crud.mountPoint + '-',
           endkey: crud.mountPoint + '-\uffff',
           ...options
-      }, folderVars);
+        }, folderVars);
     }
-    const loadFunction = c => {
-      c.props.dispatch(action);
-    };
-    return connect(mergedMapStateToProps, mapDispatchToProps)(
-      loading(loadFunction, { propName })(
-        WrappedComponent
-    ));
   }
+}
+
+export function createMapStateToPropsList(crud, opts={}, mapStateToProps) {
+
+  return (state, ownProps) => {
+    let props = mapStateToProps ? mapStateToProps(state, ownProps) : {};
+    const finalOpts = Object.assign(
+      {},
+      opts,
+      props.listOpts,
+    )
+    const {options = {}, folder, propName = 'items', queryFunc, ...folderVars} = finalOpts;
+    const toFolder = folder || folderNameFromOpts(options);
+
+    Object.assign(
+      props,
+      createMapStateToProps(crud.mountPoint, toFolder, propName)(state)
+    );
+
+    props.action = createListAction(crud, toFolder, finalOpts, folderVars);
+    return props;
+  }
+
+}
+
+export function wrap(mapStateToProps, mapDispatchToProps) {
+  return function(WrappedComponent) {
+    return connect(mapStateToProps, mapDispatchToProps)(
+      loading()(WrappedComponent)
+    );
+  }
+}
+
+export function connectList(crud, opts={}, mapStateToProps, mapDispatchToProps) {
+
+  const mapStateToPropsFinal = createMapStateToPropsList(
+    crud,
+    opts,
+    mapStateToProps
+  );
+  return wrap(mapStateToPropsFinal, mapDispatchToProps);
 }
 
 
