@@ -96,15 +96,12 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     switch (action.type) {
       case actionTypes.query.success:
       case actionTypes.allDocs.success:
-        const ids = List(action.payload.rows.map(row => row.id));
-        const {type, folder, payload, ...opts} = action;
-        return utils.setDocuments(
-          utils.saveFolderVars(
-            utils.saveIdsInFolder(state, folder, ids),
-            folder,
-            opts
-          ),
-          payload.rows
+        const {type, folder, payload, ...folderVars} = action;
+        return utils.setQueryPayloadInState(
+          state,
+          folder,
+          payload,
+          folderVars
         )
       case actionTypes.put.success:
         return utils.setDocument(state, {

@@ -1,3 +1,6 @@
+import { fromJS } from 'immutable';
+
+
 //Array(20).fill().map(((_, k) => ({_id: `doc-${('0' + (k+1)).slice(-2)}`, name: `${(k+1)}`})))
 export const docs = [
   { _id: 'doc-01', name: '1' },
@@ -32,3 +35,26 @@ export function deleteDb(db) {
 export function populateDb(db, docs) {
   return deleteDb(db).then(() => db.bulkDocs({docs}))
 }
+
+export const doc = {
+  _id: 'mydoc',
+  _rev: '1-5782E71F1E4BF698FA3793D9D5A96393',
+  title: 'Sound and Vision',
+}
+
+export const allDocsPayload = {
+  rows: [{
+    doc: doc,
+    id: doc._id
+  }]
+};
+
+export const allDocsState = fromJS({
+  folders: {
+    '': {
+      ids: [doc._id],
+      vars: {},
+    }
+  },
+  documents: {[doc._id]: doc},
+})

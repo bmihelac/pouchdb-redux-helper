@@ -11,6 +11,7 @@ import {
 
 import db from '../testDb';
 import createStore from '../testStore';
+import { allDocsState } from '../testUtils';
 
 
 const crud = createCRUD(db, 'mountPoint');
@@ -38,10 +39,20 @@ const MyListComponent = ({ items }) => {
   );
 }
 
-test('createMapStateToProps should return mapStateToProps function with `items` dictionary', t => {
+test('test createMapStateToProps', t => {
+  let result;
+
   const mapStateToProps = createMapStateToProps('mountPoint', '', 'items');
-  const result = mapStateToProps({mountPoint: INITIAL_STATE});
-  t.equal(result.items, null);
+  t.equal(typeof mapStateToProps, 'function', 'should be a function');
+  t.equal(mapStateToProps.length, 1, 'should have one argument');
+
+  result = mapStateToProps({mountPoint: INITIAL_STATE});
+  t.equal(result.items, null, 'items should be null for empty state');
+
+  result = mapStateToProps({ mountPoint: allDocsState });
+  t.equal(result.items.size, 1, 'result should have 1 item');
+  t.equal(result.folderVars.size, 0, 'result should have 0 folderVars');
+
   t.end()
 });
 

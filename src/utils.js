@@ -119,6 +119,18 @@ export function setDocuments(state, rows) {
   return state.mergeIn(['documents'], documents);
 }
 
+export function setQueryPayloadInState(state, folder, payload, folderVars) {
+  const ids = List(payload.rows.map(row => row.id));
+  return setDocuments(
+    saveFolderVars(
+      saveIdsInFolder(state, folder, ids),
+      folder,
+      folderVars
+    ),
+    payload.rows
+  )
+}
+
 
 /*
  * Replaces document `doc` in a given `list`
