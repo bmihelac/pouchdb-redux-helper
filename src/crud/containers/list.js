@@ -20,32 +20,30 @@ export function folderNameFromOpts(options) {
 }
 
 
-export function createListAction(crud, folder, opts, folderVars) {
+export function createListAction(crud, folder, opts={}, folderVars={}) {
   const { options={} } = opts;
 
-  return () => {
-    if (opts.queryFunc) {
-      return createPromiseAction(
-        () => opts.queryFunc(options),
-        crud.actionTypes.query,
-        {...folderVars, folder}
-      );
-    } else if (options.fun) {
-      const {fun, ...queryOptions} = options.fun;
-      return crud.actions.query(
-        fun,
-        folder,
-        queryOptions,
-        folderVars
-      );
-    } else {
-      return crud.actions.allDocs(
-        folder, {
-          startkey: crud.mountPoint + '-',
-          endkey: crud.mountPoint + '-\uffff',
-          ...options
-        }, folderVars);
-    }
+  if (opts.queryFunc) {
+    return () => createPromiseAction(
+      () => opts.queryFunc(options),
+      crud.actionTypes.query,
+      {...folderVars, folder}
+    );
+  } else if (options.fun) {
+    const {fun, ...queryOptions} = options;
+    return () => crud.actions.query(
+      fun,
+      folder,
+      queryOptions,
+      folderVars
+    );
+  } else {
+    return () => crud.actions.allDocs(
+      folder, {
+        startkey: crud.mountPoint + '-',
+        endkey: crud.mountPoint + '-\uffff',
+        ...options
+      }, folderVars);
   }
 }
 

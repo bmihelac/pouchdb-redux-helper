@@ -1,4 +1,5 @@
 import test from 'tape';
+import sinon from 'sinon';
 import React from 'react';
 import '../jsdom';
 import { shallow, render, mount } from 'enzyme';
@@ -6,6 +7,7 @@ import { shallow, render, mount } from 'enzyme';
 import createCRUD, { INITIAL_STATE } from '../../src/crud/crud';
 import {
   createMapStateToProps,
+  createListAction,
   connectList,
 } from '../../src/crud/containers/list';
 
@@ -54,6 +56,53 @@ test('test createMapStateToProps', t => {
   t.equal(result.folderVars.size, 0, 'result should have 0 folderVars');
 
   t.end()
+});
+
+
+test('test createListAction', t => {
+  const action = createListAction(crud, '');
+  t.equal(typeof action, 'function', 'should return a function that can be called later');
+
+  let thunk = action();
+  t.equal(typeof thunk, 'function', 'called function should return thunk');
+  t.equal(thunk.length, 2, 'thunk should have 2 arguments');
+  t.end();
+});
+
+
+test('test createListAction allDocs', t => {
+  sinon.spy(crud.actions, 'allDocs');
+  createListAction(crud, '')();
+  t.equal(
+    crud.actions.allDocs.calledOnce,
+    true,
+    'thunk should call crud.action.allDocs'
+  );
+  const args = crud.actions.allDocs.args[0];
+  t.equal(args[0], '', 'folder should be empty string');
+  t.equal(args[1].startkey, 'mountPoint-', 'startkey should be mountPoint-');
+  t.equal(args[1].endkey, 'mountPoint-\uffff', 'startkey should be mountPoint-\uffff');
+
+  crud.actions.allDocs.restore();
+  t.end();
+});
+
+
+test('test createListAction query', t => {
+  sinon.spy(crud.actions, 'query');
+  createListAction(crud, '', {options: {fun: 'myfun'}})();
+  t.equal(
+    crud.actions.query.calledOnce,
+    true,
+    'thunk should be crud.action.query'
+  );
+  const args = crud.actions.query.args[0];
+  t.equal(args[0], 'myfun', 'fun argument should be myfun');
+  t.equal(args[1], '', 'folder should be empty string');
+  t.deepEqual(args[3], {}, 'query options should be empty');
+
+  crud.actions.query.restore();
+  t.end();
 });
 
 
