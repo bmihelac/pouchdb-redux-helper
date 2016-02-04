@@ -1,18 +1,16 @@
 import test from 'tape';
 import React from 'react';
-import './jsdom';
+import '../jsdom';
 import { shallow, render, mount } from 'enzyme';
 
-import createCRUD, { INITIAL_STATE } from '../src/crud/crud';
+import createCRUD, { INITIAL_STATE } from '../../src/crud/crud';
 import {
   createMapStateToProps,
   connectList,
-  connectSingleItem,
-  createListMapStateToProps,
-} from '../src/crud/containers';
+} from '../../src/crud/containers/list';
 
-import db from './testDb';
-import createStore from './testStore';
+import db from '../testDb';
+import createStore from '../testStore';
 
 
 const crud = createCRUD(db, 'mountPoint');
@@ -39,11 +37,6 @@ const MyListComponent = ({ items }) => {
     </ul>
   );
 }
-
-const MyDetailComponent = ({ item }) => (
-  <div className="my-detail">{item.get('name')}</div>
-);
-
 
 test('createMapStateToProps should return mapStateToProps function with `items` dictionary', t => {
   const mapStateToProps = createMapStateToProps('mountPoint', '', 'items');
@@ -133,14 +126,4 @@ test('test connectList with opts from mapStateToProps', t => {
     }
   }))(MyListComponent);
   mount(<ListContainer store={store} />);
-});
-
-
-test('test connectSingleItem with data', t => {
-  const Container = connectSingleItem(crud)(MyDetailComponent);
-  store.dispatch(allDocsSuccessAction);
-
-  const result = render(<Container docId={"id-1"} store={store}/>);
-  t.equal(result.find('div.my-detail').length, 1);
-  t.end()
 });
