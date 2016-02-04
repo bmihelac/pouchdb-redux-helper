@@ -6,6 +6,8 @@ import { shallow, mount } from 'enzyme';
 import createCRUD from '../src/crud/crud';
 import paginate, {
   defaultOpts,
+  paginationFolderSuffix,
+  createMapStateToPropsPagination,
 } from '../src/crud/pagination';
 
 import db from './testDb';
@@ -15,9 +17,25 @@ import createStore, { actions } from './testStore';
 const crud = createCRUD(db, 'doc');
 const store = createStore({[crud.mountPoint]: crud.reducer});
 
-//test('applyPagination', t => {
+
+test('paginationFolderSuffix', t => {
+  t.equal(
+    paginationFolderSuffix(10),
+    '/page/10/'
+  )
+  t.equal(
+    paginationFolderSuffix(10, 'startkey'),
+    '/page/10/startkey'
+  )
+  t.end();
+});
+
+
+test('test createMapStateToPropsPagination', t => {
+  const mapStateToProps = createMapStateToPropsPagination({}, crud);
+
   //t.deepEqual(
-    //applyPagination(),
+    //mapStateToProps(state),
     //{
       //options: { limit: 11 },
       //folder: '{}/page/10/',
@@ -60,8 +78,8 @@ const store = createStore({[crud.mountPoint]: crud.reducer});
     //'should work for custom connectListOpts'
   //);
 
-  //t.end();
-//});
+  t.end();
+});
 
 
 const MyListComponent = ({ items }) => {

@@ -1,5 +1,4 @@
 import {
-  connectList,
   folderNameFromOpts,
   createMapStateToProps,
   createListAction,
@@ -12,7 +11,7 @@ export const defaultOpts = {
 }
 
 
-function paginationFolderSuffix(rowsPerPage, startkey) {
+export function paginationFolderSuffix(rowsPerPage, startkey) {
   return `/page/${rowsPerPage}/${startkey || ''}`;
 }
 
