@@ -50,7 +50,7 @@ export default function loading(loadFunction, opts={}) {
       }
 
       getLoadFunction() {
-        return opts.loadFunction;
+        return loadFunction;
       }
 
       componentDidMount = () => {
