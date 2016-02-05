@@ -156,8 +156,6 @@ connectList(crud, opts={}, mapStateToProps, mapDispatchToProps)
 
 * `crud`: crud obtained from `createCRUD`
 * `opts`:
-  * `opts.queryFunc(options)`: Optional function that returns promise for loading data.
-      If non specified `crud.query` or `crud.allDocs` will be used for loading data.
   * `opts.options`: options to pass to PouchDB. If `options.fun` is given,
       `query` will be executed, otherwise `allDocs` which starts with `mountPoint-`
   * `opts.folder`: folder where to save result. If empty this is serialized from
@@ -244,6 +242,9 @@ TODO: add example, docs
 ## Changelog
 
 * 0.8.0
+    * save extra things received from query/allDocs in `folderVars`.
+      This includes `total_rows`, `offset`, `skip`.
+    * remove `queryFunc` introduced in 0.7.0
     * pagination suport
     * pass additional `opts` in `query` and `allDocs` actions and save them
       in folder as `folderVars`

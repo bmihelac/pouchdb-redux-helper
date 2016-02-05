@@ -22,23 +22,16 @@ export function folderNameFromOpts(options) {
 
 export function createListAction(crud, folder, opts={}, folderVars={}) {
   const { options={} } = opts;
-
-  if (opts.queryFunc) {
-    return () => createPromiseAction(
-      () => opts.queryFunc(options),
-      crud.actionTypes.query,
-      {...folderVars, folder}
-    );
-  } else if (options.fun) {
+  if (options.fun) {
     const {fun, ...queryOptions} = options;
-    return () => crud.actions.query(
+    return crud.actions.query(
       fun,
       folder,
       queryOptions,
       folderVars
     );
   } else {
-    return () => crud.actions.allDocs(
+    return crud.actions.allDocs(
       folder, {
         startkey: crud.mountPoint + '-',
         endkey: crud.mountPoint + '-\uffff',
@@ -56,7 +49,7 @@ export function createMapStateToPropsList(crud, opts={}, mapStateToProps) {
       opts,
       props.listOpts,
     )
-    const {options = {}, folder, propName = 'items', queryFunc, ...folderVars} = finalOpts;
+    const {options = {}, folder, propName = 'items', ...folderVars} = finalOpts;
     const toFolder = folder || folderNameFromOpts(options);
 
     Object.assign(
@@ -64,7 +57,7 @@ export function createMapStateToPropsList(crud, opts={}, mapStateToProps) {
       createMapStateToProps(crud.mountPoint, toFolder, propName)(state)
     );
 
-    props.action = createListAction(crud, toFolder, finalOpts, folderVars);
+    props.action = () => createListAction(crud, toFolder, finalOpts, folderVars);
     return props;
   }
 

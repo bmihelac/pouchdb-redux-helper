@@ -60,10 +60,7 @@ test('test createMapStateToProps', t => {
 
 
 test('test createListAction', t => {
-  const action = createListAction(crud, '');
-  t.equal(typeof action, 'function', 'should return a function that can be called later');
-
-  let thunk = action();
+  const thunk = createListAction(crud, '');
   t.equal(typeof thunk, 'function', 'called function should return thunk');
   t.equal(thunk.length, 2, 'thunk should have 2 arguments');
   t.end();
@@ -72,7 +69,7 @@ test('test createListAction', t => {
 
 test('test createListAction allDocs', t => {
   sinon.spy(crud.actions, 'allDocs');
-  createListAction(crud, '')();
+  createListAction(crud, '')
   t.equal(
     crud.actions.allDocs.calledOnce,
     true,
@@ -90,7 +87,7 @@ test('test createListAction allDocs', t => {
 
 test('test createListAction query', t => {
   sinon.spy(crud.actions, 'query');
-  createListAction(crud, '', {options: {fun: 'myfun'}})();
+  createListAction(crud, '', {options: {fun: 'myfun'}});
   t.equal(
     crud.actions.query.calledOnce,
     true,
@@ -146,22 +143,6 @@ test('test connectList with mapStateToProps, mapDispatchToProps', t => {
   t.equal(wrapper.prop('foo'), 'bar');
   t.equal(wrapper.prop('action'), 'foo');
   t.end();
-});
-
-
-test('test connectList with queryFunc', t => {
-  const pouchdbOptions = {};
-  const queryFunc = (options) => {
-    t.ok(true, 'queryFunc should be called');
-    t.equal(options, pouchdbOptions, 'should have pouchdbOptions');
-    t.end();
-    return db.allDocs();
-  };
-  const folder = 'queryFunc';
-  const ListContainer = connectList(crud, { queryFunc, folder, options: pouchdbOptions })(
-    MyListComponent
-  );
-  mount(<ListContainer store={store} />);
 });
 
 
