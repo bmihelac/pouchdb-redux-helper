@@ -3,13 +3,13 @@ export {
   createMapStateToProps,
   folderNameFromOpts,
   connectList,
-} from './list';
+} from './containers/list';
 export {
   connectSingleItem,
   createOnSubmitHandler,
   createOnRemoveHandler,
   singleObjectMapStateToProps,
-} from './detail';
+} from './containers/detail';
 export {
   wrap,
-} from './common';
+} from './containers/common';
