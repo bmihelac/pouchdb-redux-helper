@@ -113,7 +113,7 @@ test('test paginate', t => {
     const C1 = paginate({}, crud)(PaginatedMyListComponent);
     wrapper = mount(<C1 store={store} />);
     t.equal(wrapper.find('.loading').length, 1, 'initial render should be loading');
-    actions.pop().then(() => {
+    return actions.pop().then(() => {
       wrapper = shallow(<C1 store={store} />);
       t.deepEqual(
         wrapper.prop('folderVars').get('rowsPerPage'),
@@ -128,7 +128,7 @@ test('test paginate', t => {
       const C2 = paginate({startkey, prevStartkey }, crud)(PaginatedMyListComponent);
       wrapper = mount(<C2 store={store} />);
       t.equal(wrapper.find('.loading').length, 1, 'should be loading');
-      actions.pop().then(() => {
+      return actions.pop().then(() => {
         wrapper = shallow(<C2 store={store} />);
         t.deepEqual(wrapper.prop('folderVars').toJS(), {
           rowsPerPage: defaultOpts.rowsPerPage,
@@ -140,7 +140,9 @@ test('test paginate', t => {
                 'should start with doc-11');
 
         t.end();
-      }).catch(err => t.fail(err.stack));;
-    }).catch(err => t.fail(err.stack));
-  }).catch(err => t.fail(err.stack));;
+      })
+    })
+  }).catch(err => {
+    t.fail(err.stack);
+  });;
 });
