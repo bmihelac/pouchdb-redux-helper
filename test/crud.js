@@ -7,20 +7,11 @@ import { createPromiseAction } from '../src/actions';
 import createCRUD, { INITIAL_STATE } from '../src/crud/crud';
 import * as utils from '../src/utils';
 import db from './testDb';
+import { doc, allDocsPayload } from './testUtils';
+
 const crud = createCRUD(db, 'mountPoint');
 const {reducer, actionTypes} = crud;
 
-const doc = {
-  _id: 'mydoc',
-  _rev: '1-5782E71F1E4BF698FA3793D9D5A96393',
-  title: 'Sound and Vision',
-}
-const allDocsPayload = {
-  rows: [{
-    doc: doc,
-    id: doc._id
-  }]
-};
 
 test('crud has db', t => {
   t.equal(crud.db, db);

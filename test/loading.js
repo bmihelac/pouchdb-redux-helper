@@ -12,7 +12,7 @@ import loading from '../src/crud/loading';
 const MyListComponent = ({ items }) => {
 }
 
-test.only('loading with loadFunction', t => {
+test('loading with loadFunction', t => {
   const loadFunction = sinon.spy();
   const C = loading(loadFunction)(MyListComponent);
   mount(<C />);
