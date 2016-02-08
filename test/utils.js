@@ -43,7 +43,7 @@ test('createActionType should return action type', t => {
 });
 
 
-test.only('test setQueryPayloadInState', t => {
+test('test setQueryPayloadInState', t => {
   const state = utils.setQueryPayloadInState(new immutable.Map(), '', payload,
                                              {foo: 'bar'});
   const folderVars = utils.getFolderVars(state, '');

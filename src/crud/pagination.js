@@ -2,8 +2,10 @@ import { createPromiseAction } from '../actions';
 import {
   folderNameFromOpts,
   createMapStateToProps,
-  wrap,
-} from './containers';
+  isQuery,
+  getListParams,
+} from './containers/list';
+import { wrap } from './containers/common';
 
 
 export const defaultOpts = {
@@ -16,36 +18,16 @@ export function paginationFolderSuffix(rowsPerPage, startkey) {
 }
 
 
-function getListFunction(opts) {
-  return opts.fun ? 'query' : 'allDocs';
-}
-
-function getListParams(crud, opts) {
-  const initialParams = {};
-
-  if (!opts.fun) {
-    Object.assign(initialParams, {
-      startkey: crud.mountPoint + '-',
-      endkey: crud.mountPoint + '-\uffff',
-    });
-  }
-
-  const params = {
-    include_docs: true,
-    attachments: true,
-    ...initialParams,
-    ...opts.options
-  };
-
-  return params;
-}
-
-
 export function createPaginateAction(crud, folder, opts={}, folderVars={}) {
   const fun = () => {
-    const funName = getListFunction(opts);
+    let p;
     const funParams = getListParams(crud, opts);
-    return crud.db[funName](funParams).then(payload => {
+    if (isQuery(opts)) {
+      p = crud.db.query(opts.options.fun, funParams);
+    } else {
+      p = crud.db.allDocs(funParams);
+    }
+    return p.then(payload => {
       // TODO: add prev, next startkey to payload so they are available as folderVars
       payload.prev = 'PREV';
       payload.next = 'NEXT';
