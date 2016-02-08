@@ -119,13 +119,15 @@ export function setDocuments(state, rows) {
   return state.mergeIn(['documents'], documents);
 }
 
+
 export function setQueryPayloadInState(state, folder, payload, folderVars) {
-  const ids = List(payload.rows.map(row => row.id));
+  const { rows, ...folderVarsFromQuery } = payload;
+  const ids = List(rows.map(row => row.id));
   return setDocuments(
     saveFolderVars(
       saveIdsInFolder(state, folder, ids),
       folder,
-      folderVars
+      {...folderVarsFromQuery, ...folderVars}
     ),
     payload.rows
   )

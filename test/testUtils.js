@@ -26,6 +26,33 @@ export const docs = [
 ];
 
 
+export const payload = JSON.parse(`
+{
+  "offset": 0,
+  "total_rows": 1,
+  "rows": [{
+    "doc": {
+      "_id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+      "_rev": "1-5782E71F1E4BF698FA3793D9D5A96393",
+      "title": "Sound and Vision",
+      "_attachments": {
+        "attachment/its-id": {
+          "content_type": "image/jpg",
+          "data": "R0lGODlhAQABAIAAAP7//wAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==",
+          "digest": "md5-57e396baedfe1a034590339082b9abce"
+        }
+      }
+    },
+    "id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+    "key": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
+    "value": {
+      "rev": "1-5782E71F1E4BF698FA3793D9D5A96393"
+    }
+  }]
+}
+`);
+
+
 export function deleteDb(db) {
   return db.allDocs().then(
     result => Promise.all(result.rows.map(row => db.remove(row.id, row.value.rev)))

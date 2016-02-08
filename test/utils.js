@@ -2,34 +2,10 @@ import test from 'tape';
 import immutable from 'immutable';
 
 import * as utils from '../src/utils';
+import { payload } from './testUtils';
 
 
 test('toList should convert pouchdb payload to immutable list', t => {
-  const payload = JSON.parse(`
-  {
-    "offset": 0,
-    "total_rows": 1,
-    "rows": [{
-      "doc": {
-        "_id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
-        "_rev": "1-5782E71F1E4BF698FA3793D9D5A96393",
-        "title": "Sound and Vision",
-        "_attachments": {
-          "attachment/its-id": {
-            "content_type": "image/jpg",
-            "data": "R0lGODlhAQABAIAAAP7//wAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==",
-            "digest": "md5-57e396baedfe1a034590339082b9abce"
-          }
-        }
-      },
-      "id": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
-      "key": "0B3358C1-BA4B-4186-8795-9024203EB7DD",
-      "value": {
-        "rev": "1-5782E71F1E4BF698FA3793D9D5A96393"
-      }
-    }]
-  }
-  `);
   const list = utils.toList(payload);
   t.equal(list.count(), 1);
   const item = list.get(0);
@@ -63,5 +39,16 @@ test('updateDocInList should ignore non existing doc', t => {
 
 test('createActionType should return action type', t => {
   t.equal(utils.createActionType('items', 'get', 'request'), 'POUCHDB_items_get_request');
+  t.end();
+});
+
+
+test.only('test setQueryPayloadInState', t => {
+  const state = utils.setQueryPayloadInState(new immutable.Map(), '', payload,
+                                             {foo: 'bar'});
+  const folderVars = utils.getFolderVars(state, '');
+  t.equal(folderVars.get('total_rows'), 1, 'should have total_rows in folderVars');
+  t.equal(folderVars.get('offset'), 0, 'should have offset in folderVars');
+  t.equal(folderVars.get('foo'), 'bar', 'should have foo in folderVars');
   t.end();
 });
