@@ -1,70 +1,84 @@
 /* globals emit */
 
 import test from 'tape';
-import { List, fromJS, Map } from 'immutable';
+import { List, Map } from 'immutable';
 
+import { createPromiseAction } from '../src/actions';
 import createCRUD, { INITIAL_STATE } from '../src/crud/crud';
+import * as utils from '../src/utils';
 import db from './testDb';
+import { doc, allDocsPayload } from './testUtils';
+
 const crud = createCRUD(db, 'mountPoint');
 const {reducer, actionTypes} = crud;
 
-const doc = {
-  _id: 'mydoc',
-  _rev: '1-5782E71F1E4BF698FA3793D9D5A96393',
-  title: 'Sound and Vision',
-}
 
 test('crud has db', t => {
   t.equal(crud.db, db);
   t.end();
 });
 
+test('createCrud sets default startkey, endkey', t => {
+  t.equal(crud.startkey, 'mountPoint-');
+  t.equal(crud.endkey, 'mountPoint-\uffff');
+  t.end();
+});
+
+test('createCrud with startkey, endkey options', t => {
+  const c = createCRUD(db, 'mountPoint', null, {startkey: null, endkey: null});
+  t.equal(c.startkey, null);
+  t.equal(c.endkey, null);
+  t.end();
+});
+
 test('reducer should have initial state', t => {
   const state = reducer(undefined, {});
   t.ok(state instanceof Map, 'should be Map');
-  t.equal(state.get('folders'), Map());
-  t.equal(state.get('documents'), Map());
+  t.equal(utils.getFoldersFromState(state), Map());
+  t.equal(utils.getDocumentsFromState(state), Map());
   t.end();
 });
 
 test('reducer should handle ALL_DOCS action type', t => {
-  const payload = {
-    rows: [{
-      doc: doc,
-      id: doc._id
-    }]
-  };
   const state = reducer(INITIAL_STATE, {
     type: actionTypes.allDocs.success,
     folder: '',
-    payload: payload
+    payload: allDocsPayload,
   });
-  t.ok(state.get('folders').has(''), 'has folder');
-  t.equal(state.getIn(['folders', '', 0]), doc._id);
-  t.deepEqual(state.getIn(['documents', doc._id]).toObject(), doc);
+  t.ok(utils.hasFolder(state, ''), 'has folder');
+  t.equal(utils.getIdsFromFolder(state, '').get(0), doc._id);
+  t.deepEqual(utils.getDocument(state, doc._id).toObject(), doc);
   t.end();
 });
 
 test('reducer should handle QUERY action type', t => {
-  const payload = {
-    rows: [{
-      doc: doc,
-      id: doc._id
-    }]
-  };
   const state = reducer(INITIAL_STATE, {
     type: actionTypes.query.success,
     folder: '',
-    payload: payload
+    payload: allDocsPayload,
   });
-  t.ok(state.get('folders').has(''), 'has folder');
-  t.equal(state.getIn(['folders', '', 0]), doc._id);
-  t.deepEqual(state.getIn(['documents', doc._id]).toObject(), doc);
+  t.ok(utils.hasFolder(state, ''), 'has folder');
+  t.equal(utils.getIdsFromFolder(state, '').get(0), doc._id);
+  t.deepEqual(utils.getDocument(state, doc._id).toObject(), doc);
+  t.end();
+});
+
+
+test('test folderVars', t => {
+  const state = reducer(INITIAL_STATE, {
+    type: actionTypes.query.success,
+    folder: '',
+    payload: allDocsPayload,
+    foo: 'bar',
+  });
+  const folderVars = utils.getFolderVars(state, '');
+  t.equal(folderVars.size, 1, 'should have 1 var');
+  t.equal(folderVars.get('foo'), 'bar', 'foo var should be saved in state');
   t.end();
 });
 
 test('reducer should handle PUT success', t => {
-  const initialState = INITIAL_STATE.setIn(['documents', doc._id], fromJS(doc));
+  const initialState = utils.setDocument(INITIAL_STATE, doc);
   const payload = {
     ok: true,
     rev: 'rev-2',
@@ -75,23 +89,24 @@ test('reducer should handle PUT success', t => {
     payload: payload,
     doc: { ...doc, title: 'foo' }
   });
-  const updatedDoc = state.getIn(['documents', doc._id]);
+  const updatedDoc = utils.getDocument(state, doc._id);
   t.equal(updatedDoc.get('title'), 'foo');
   t.equal(updatedDoc.get('_rev'), payload.rev);
   t.end();
 });
 
 test('reducer should handle REMOVE success', t => {
-  const initialState = INITIAL_STATE.setIn(
-    ['documents', doc._id], fromJS(doc)
-  ).setIn(['folders', ''], List([doc._id]));
+  const initialState = utils.setDocument(
+    utils.saveIdsInFolder(INITIAL_STATE, '', List([doc._id])),
+    doc
+  )
   const state = reducer(initialState, {
     type: actionTypes.remove.success,
     payload: { id: doc._id },
     doc: { ...doc }
   });
-  t.equal(state.get('documents').count(), 0);
-  t.equal(state.getIn(['folders', '']).count(), 0);
+  t.equal(utils.getDocumentsFromState(state).count(), 0);
+  t.equal(utils.getIdsFromFolder(state, '').count(), 0);
   t.end();
 });
 
@@ -276,4 +291,3 @@ test('test crud action remove', t => {
     remove(dispatch);
   });
 });
-

@@ -24,7 +24,9 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
   prefix = prefix || mountPoint;
   const urlPrefix = '/' + prefix;
 
-  const defaultOpts = opts;
+  const defaultStartkey = mountPoint + '-';
+  const defaultEndkey = mountPoint + '-\uffff';
+  const { startkey=defaultStartkey, endkey=defaultEndkey } = opts;
 
   let actionTypes = {};
   for (let action in ACTIONS) {
@@ -34,7 +36,7 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     };
   };
 
-  const allDocs = (folder='', params) => {
+  const allDocs = (folder='', params, opts) => {
     const mergedParams = {
       attachments: true,
       include_docs: true,
@@ -43,11 +45,11 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     return createPromiseAction(
       () => db.allDocs(mergedParams),
       actionTypes.allDocs,
-      {folder}
+      {...opts, folder}
     )
   }
 
-  const query = function query(fun, folder='', params) {
+  const query = function query(fun, folder='', params, opts) {
     const mergedParams = {
       attachments: true,
       include_docs: true,
@@ -56,31 +58,31 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     return createPromiseAction(
       () => db.query(fun, mergedParams),
       actionTypes.query,
-      {folder}
+      {...opts, folder}
     )
   };
 
-  const get = function get(docId, params={}) {
+  const get = function get(docId, params={}, opts) {
     return createPromiseAction(
       () => db.get(docId, params),
       actionTypes.get,
-      {docId}
+      {...opts, docId}
     )
   }
 
-  const put = function put(doc, params) {
+  const put = function put(doc, params, opts) {
     return createPromiseAction(
       () => db.put(doc, params),
       actionTypes.put,
-      {doc}
+      {...opts, doc}
     )
   }
 
-  const remove = function remove(doc, params) {
+  const remove = function remove(doc, params, opts) {
     return createPromiseAction(
       () => db.remove(doc, params),
       actionTypes.remove,
-      {doc}
+      {...opts, doc}
     )
   }
 
@@ -96,25 +98,22 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     switch (action.type) {
       case actionTypes.query.success:
       case actionTypes.allDocs.success:
-        const ids = List(action.payload.rows.map(row => row.id));
-        const documents = Map(action.payload.rows.map(row => [row.id, fromJS(row.doc)]));
-        return state.setIn(['folders', action.folder], ids).mergeIn(['documents'], documents);
+        const {type, folder, payload, ...folderVars} = action;
+        return utils.setQueryPayloadInState(
+          state,
+          folder,
+          payload,
+          folderVars
+        )
       case actionTypes.put.success:
-        return state.setIn(['documents', action.payload.id], fromJS({
+        return utils.setDocument(state, {
           ...action.doc,
           _rev: action.payload.rev,
-        }));
-      case actionTypes.get.success:
-        return state.setIn(['documents', action.payload._id], fromJS(action.payload));
-      case actionTypes.remove.success:
-        let newState = state.deleteIn(['documents', action.payload.id]);
-        newState.get('folders').map((list, k) => {
-          const index = list.indexOf(action.payload.id)
-          if (index != -1) {
-            newState = newState.setIn(['folders', k], list.delete(index));
-          }
         });
-        return newState;
+      case actionTypes.get.success:
+        return utils.setDocument(state, action.payload);
+      case actionTypes.remove.success:
+        return utils.removeDocument(state, action.payload.id);
       default:
         return state;
     }
@@ -135,5 +134,7 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     paths,
     urlPrefix,
     db,
+    startkey,
+    endkey,
   }
 }

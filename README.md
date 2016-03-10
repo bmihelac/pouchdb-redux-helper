@@ -44,7 +44,10 @@ database.
     state as well to give action types unique prefix
 * `prefix`: prefix to use for document id for creating new object and in allDocs.
     Equal to `mountPoint` if not specified.
-* `opts`: options (not used currently)
+* `opts`: options
+
+    * `startkey` - startkey for this crud, default `mountPoint-`
+    * `endkey` - endkey for this crud, default `mountPoint-\uffff`
 
 ### Returns
 
@@ -52,8 +55,8 @@ It returns object consisting of:
 
 * `actions`
 
-    * `actions.allDocs(folder='', params)`
-    * `actions.query(fun, folder='', params)`
+    * `actions.allDocs(folder='', params, opts)`
+    * `actions.query(fun, folder='', params, opts)`
     * `actions.get(docId, params, opts)`
     * `actions.put(doc, params, opts)`
     * `actions.remove(doc, params, opts)`
@@ -156,8 +159,6 @@ connectList(crud, opts={}, mapStateToProps, mapDispatchToProps)
 
 * `crud`: crud obtained from `createCRUD`
 * `opts`:
-  * `opts.queryFunc(options)`: Optional function that returns promise for loading data.
-      If non specified `crud.query` or `crud.allDocs` will be used for loading data.
   * `opts.options`: options to pass to PouchDB. If `options.fun` is given,
       `query` will be executed, otherwise `allDocs` which starts with `mountPoint-`
   * `opts.folder`: folder where to save result. If empty this is serialized from
@@ -226,6 +227,10 @@ const routes = (
 );
 ```
 
+### Pagination
+
+TODO: add example, docs
+
 ## Example app
 
 [Example app](http://bmihelac.github.io/pouchdb-redux-helper-example/)
@@ -234,10 +239,18 @@ const routes = (
 
 ## TODO:
 
+* simplify connectList
 * upgrade babel to 6.x
 
 ## Changelog
 
+* 0.8.0
+    * save extra things received from query/allDocs in `folderVars`.
+      This includes `total_rows`, `offset`, `skip`.
+    * remove `queryFunc` introduced in 0.7.0
+    * pagination suport
+    * pass additional `opts` in `query` and `allDocs` actions and save them
+      in folder as `folderVars`
 * 0.7.0
     * add `queryFunc` option to `containers.connectList` options
 * 0.6.0
