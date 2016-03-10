@@ -18,6 +18,19 @@ test('crud has db', t => {
   t.end();
 });
 
+test('createCrud sets default startkey, endkey', t => {
+  t.equal(crud.startkey, 'mountPoint-');
+  t.equal(crud.endkey, 'mountPoint-\uffff');
+  t.end();
+});
+
+test('createCrud with startkey, endkey options', t => {
+  const c = createCRUD(db, 'mountPoint', null, {startkey: null, endkey: null});
+  t.equal(c.startkey, null);
+  t.equal(c.endkey, null);
+  t.end();
+});
+
 test('reducer should have initial state', t => {
   const state = reducer(undefined, {});
   t.ok(state instanceof Map, 'should be Map');

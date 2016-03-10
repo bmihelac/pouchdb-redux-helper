@@ -44,7 +44,10 @@ database.
     state as well to give action types unique prefix
 * `prefix`: prefix to use for document id for creating new object and in allDocs.
     Equal to `mountPoint` if not specified.
-* `opts`: options (not used currently)
+* `opts`: options
+
+    * `startkey` - startkey for this crud, default `mountPoint-`
+    * `endkey` - endkey for this crud, default `mountPoint-\uffff`
 
 ### Returns
 

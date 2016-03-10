@@ -39,8 +39,8 @@ export function getListParams(crud, opts) {
 
   if (!isQuery(opts)) {
     Object.assign(initialParams, {
-      startkey: crud.mountPoint + '-',
-      endkey: crud.mountPoint + '-\uffff',
+      startkey: crud.startkey,
+      endkey: crud.endkey,
     });
   }
 

@@ -24,7 +24,9 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
   prefix = prefix || mountPoint;
   const urlPrefix = '/' + prefix;
 
-  const defaultOpts = opts;
+  const defaultStartkey = mountPoint + '-';
+  const defaultEndkey = mountPoint + '-\uffff';
+  const { startkey=defaultStartkey, endkey=defaultEndkey } = opts;
 
   let actionTypes = {};
   for (let action in ACTIONS) {
@@ -132,5 +134,7 @@ export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
     paths,
     urlPrefix,
     db,
+    startkey,
+    endkey,
   }
 }
