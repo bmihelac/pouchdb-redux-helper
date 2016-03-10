@@ -50,7 +50,7 @@ export function paginateQuery(crud, opts, rowsPerPage, startkey) {
       ...funParams,
       startkey: payload.rows[0].id,
       endkey: listParams.startkey,
-      limit: rowsPerPage+1,
+      limit: rowsPerPage,
       skip: 1,
       descending: true,
     }

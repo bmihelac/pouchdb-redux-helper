@@ -66,11 +66,11 @@ test('test paginateQuery first page', t => {
 
 test('test paginateQuery', t => {
   testUtils.populateDb(db, testUtils.docs).then(() => {
-    const q = paginateQuery(crud, {}, 5, 'doc-06');
+    const q = paginateQuery(crud, {}, 5, 'doc-11');
     q.then(payload => {
       t.equal(payload.rows.length, 5, 'payload should have 5 rows');
-      t.equal(payload.next, 'doc-11', 'payload should have next');
-      t.equal(payload.prev, 'doc-01', 'payload should have prev');
+      t.equal(payload.next, 'doc-16', 'payload should have next');
+      t.equal(payload.prev, 'doc-06', 'payload should have prev');
       t.end();
     });
   });
