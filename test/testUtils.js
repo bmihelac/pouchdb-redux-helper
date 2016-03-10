@@ -63,6 +63,18 @@ export function populateDb(db, docs) {
   return deleteDb(db).then(() => db.bulkDocs({docs}))
 }
 
+export function createIndex(db, name, fun) {
+  const ddoc = {
+    _id: '_design/' + name,
+    views: {
+      [name]: {
+        map: fun.toString()
+      }
+    }
+  }
+  return db.put(ddoc);
+}
+
 export const doc = {
   _id: 'mydoc',
   _rev: '1-5782E71F1E4BF698FA3793D9D5A96393',

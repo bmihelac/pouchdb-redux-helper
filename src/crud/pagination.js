@@ -18,28 +18,50 @@ export function paginationFolderSuffix(rowsPerPage, startkey) {
 }
 
 
-export function createPaginateAction(crud, folder, opts={}, folderVars={}) {
-  const fun = () => {
-    let p;
-    const funParams = getListParams(crud, opts);
-    if (isQuery(opts)) {
-      p = crud.db.query(opts.options.fun, funParams);
-    } else {
-      p = crud.db.allDocs(funParams);
-    }
-    return p.then(payload => {
-      // TODO: add prev, next startkey to payload so they are available as folderVars
-      payload.prev = 'PREV';
-      payload.next = 'NEXT';
-      return payload;
-    });
+// add limit, startkey to list params
+export function getPaginationListParams(listParams, opts, rowsPerPage, startkey) {
+  let finalStartkey = startkey || (opts.options && opts.options.startkey);
+  return Object.assign(
+    {},
+    listParams,
+    { limit: rowsPerPage+1 },
+    startkey ? { startkey: finalStartkey } : null,
+  );
+}
+
+export function paginateQuery(crud, opts, rowsPerPage, startkey) {
+  let fun;
+  const listParams = getListParams(crud, opts);
+  const funParams = getPaginationListParams(listParams, opts, rowsPerPage, startkey);
+  if (isQuery(opts)) {
+    fun = crud.db.query.bind(crud.db, opts.options.fun);
+  } else {
+    fun = crud.db.allDocs.bind(crud.db);
   }
 
-  return createPromiseAction(
-    fun,
-    crud.actionTypes.query,
-    {...folderVars, folder}
-  )
+  return fun(funParams).then(payload => {
+    //assign next page starting id
+    if (payload.rows[rowsPerPage]) {
+      const lastRow = payload.rows.pop();
+      payload.next = lastRow.id;
+    }
+    // create reversedParams from funParams
+    const reversedParams = {
+      ...funParams,
+      startkey: payload.rows[0].id,
+      endkey: listParams.startkey,
+      limit: rowsPerPage+1,
+      skip: 1,
+      descending: true,
+    }
+    return fun(reversedParams).then(r => {
+      const firstRow = r.rows.pop();
+      if (firstRow) {
+        payload.prev = firstRow.id;
+      }
+      return payload;
+    });
+  });
 }
 
 
@@ -47,26 +69,41 @@ export function createMapStateToPropsPagination(paginationOpts={}, crud, opts={}
 
   return (state, ownProps) => {
     let props = mapStateToProps ? mapStateToProps(state, ownProps) : {};
-    const { rowsPerPage, startkey, prevStartkey } = Object.assign({}, defaultOpts, paginationOpts, props);
+    // rowsPerPage and startkey can be given in mapStateToProps,
+    // paginationOpts or defaultOpts
+    const { rowsPerPage, startkey } = Object.assign(
+      defaultOpts,
+      paginationOpts,
+      props
+    );
+    // finalOpts from argument opts or from mapStateToProps
     const finalOpts = Object.assign(
-      {},
       opts,
       props.listOpts,
     )
-    const {options={}, folder, propName = 'items', ...folderVars} = finalOpts;
-    finalOpts.options = Object.assign({}, finalOpts.options, { limit: rowsPerPage+1, startkey });
-    const paginatedFolderVars = Object.assign(
-      folderVars,
-      { prevStartkey, rowsPerPage }
-    )
-    const toFolder = (folder || folderNameFromOpts(options)) + paginationFolderSuffix(rowsPerPage, startkey);
-
+    // set pouchdb options with pagination related things
+    finalOpts.options = Object.assign(
+      {},
+      finalOpts.options,
+      {
+        limit: rowsPerPage+1,
+        startkey
+      }
+    );
+    const toFolder = (finalOpts.folder || folderNameFromOpts(finalOpts.options)) +
+      paginationFolderSuffix(rowsPerPage, startkey);
+    const propName = finalOpts.propName || 'items';
+    // add documents, folderVars to props
     Object.assign(
       props,
       createMapStateToProps(crud.mountPoint, toFolder, propName)(state)
     );
-
-    props.action = () => createPaginateAction(crud, toFolder, finalOpts, paginatedFolderVars);
+    // assign action that loads items from db
+    props.action = () => createPromiseAction(
+      () => paginateQuery(crud, toFolder, rowsPerPage, startkey),
+      crud.actionTypes.query,
+      {folder: toFolder},
+    )
     return props;
   }
 

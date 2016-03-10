@@ -21,7 +21,6 @@ function combineMapStateToProps(fun1, fun2) {
 
 export const singleObjectMapStateToProps = (mountPoint, propName) => function singleObjectMapStateToProps(state, ownProps) {
   const id = ownProps.docId;
-  debugger;
   return {
     id,
     [propName]: utils.getObjectFromState(state, mountPoint, id),
