@@ -1,6 +1,6 @@
 {
   "name": "pouchdb-redux-helper",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "description": "Helpers for working with PouchDB in React with Redux store.",
   "main": "lib/index.js",
   "jsnext:main": "src/index.js",
