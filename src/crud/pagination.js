@@ -43,21 +43,28 @@ export function paginateQuery(crud, opts, rowsPerPage, startkey) {
     //assign next page starting id
     if (payload.rows[rowsPerPage]) {
       const lastRow = payload.rows.pop();
-      payload.next = lastRow.id;
+      payload.next = lastRow.key;
+    }
+    if (payload.rows.length == 0) {
+      return payload;
     }
     // create reversedParams from funParams
     const reversedParams = {
       ...funParams,
-      startkey: payload.rows[0].id,
-      endkey: listParams.startkey,
+      include_docs: false,
+      attachments: false,
+      startkey: payload.rows[0].key,
       limit: rowsPerPage,
       skip: 1,
       descending: true,
     }
+    if (listParams.startkey) {
+      reversedParams.endkey = listParams.startkey;
+    }
     return fun(reversedParams).then(r => {
       const firstRow = r.rows.pop();
       if (firstRow) {
-        payload.prev = firstRow.id;
+        payload.prev = firstRow.key;
       }
       return payload;
     });
@@ -76,20 +83,11 @@ export function createMapStateToPropsPagination(paginationOpts={}, crud, opts={}
       paginationOpts,
       props
     );
-    // finalOpts from argument opts or from mapStateToProps
+    // finalOpts from argument opts overriden with eventual listOpts from mapStateToProps
     const finalOpts = Object.assign(
       opts,
       props.listOpts,
     )
-    // set pouchdb options with pagination related things
-    finalOpts.options = Object.assign(
-      {},
-      finalOpts.options,
-      {
-        limit: rowsPerPage+1,
-        startkey
-      }
-    );
     const toFolder = (finalOpts.folder || folderNameFromOpts(finalOpts.options)) +
       paginationFolderSuffix(rowsPerPage, startkey);
     const propName = finalOpts.propName || 'items';
@@ -100,7 +98,7 @@ export function createMapStateToPropsPagination(paginationOpts={}, crud, opts={}
     );
     // assign action that loads items from db
     props.action = () => createPromiseAction(
-      () => paginateQuery(crud, toFolder, rowsPerPage, startkey),
+      () => paginateQuery(crud, finalOpts, rowsPerPage, startkey),
       crud.actionTypes.query,
       {folder: toFolder},
     )

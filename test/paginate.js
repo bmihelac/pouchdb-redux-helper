@@ -103,6 +103,25 @@ test('test paginateQuery with query function', t => {
 });
 
 
+test('test paginateQuery with startkey, endkey', t => {
+  testUtils.populateDb(db, testUtils.docs).then(() => {
+    const opts = {
+      options: {
+        startkey: 'doc-06',
+        endkey: 'doc-08',
+      }
+    }
+    const q = paginateQuery(crud, opts, 5);
+    return q.then(payload => {
+        t.equal(payload.rows.length, 3, 'payload should have 3 rows');
+        t.equal('prev' in payload, false, 'payload should have no prev');
+        t.equal('next' in payload, false, 'payload should have no next');
+        t.end();
+    });
+  });
+});
+
+
 test('test createMapStateToPropsPagination', t => {
   const mapStateToProps = createMapStateToPropsPagination({}, crud);
   const state = {
