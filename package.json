@@ -31,6 +31,7 @@
   "homepage": "https://github.com/bmihelac/pouchdb-redux-helper",
   "license": "MIT",
   "dependencies": {
+    "invariant": "^2.2.1",
     "redux-thunk": "^1.0.3",
     "uuid": "^2.0.1"
   },

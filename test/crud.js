@@ -291,3 +291,13 @@ test('test crud action remove', t => {
     remove(dispatch);
   });
 });
+
+
+test('test createCRUD assertions', t => {
+  t.throws(
+    createCRUD,
+    /^Invariant Violation/,
+    'calling without db should throw an error'
+  );
+  t.end();
+});

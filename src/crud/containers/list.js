@@ -1,5 +1,6 @@
-import * as utils from '../../utils';
+import invariant from 'invariant';
 
+import * as utils from '../../utils';
 import { folderNameFromOpts } from '../../utils';
 import { wrap } from './common';
 
@@ -80,6 +81,10 @@ export function createMapStateToPropsList(crud, opts={}, mapStateToProps) {
 }
 
 export function connectList(crud, opts={}, mapStateToProps, mapDispatchToProps) {
+  invariant(
+    typeof crud !== 'undefined',
+    'crud is required parameter'
+  );
 
   const mapStateToPropsFinal = createMapStateToPropsList(
     crud,

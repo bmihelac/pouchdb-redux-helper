@@ -1,3 +1,4 @@
+import invariant from 'invariant';
 import uuid from 'uuid';
 
 import * as utils from '../../utils';
@@ -67,6 +68,10 @@ export function createOnRemoveHandler(crud) {
  * @param {crud} crud
  */
 export function connectSingleItem(crud, opts={}, mapStateToProps, mapDispatchToProps) {
+  invariant(
+    typeof crud !== 'undefined',
+    'crud is required parameter'
+  );
   const { propName = 'item' } = opts;
   const loadFunction = c => { c.props.dispatch(crud.actions.get(c.props.id)); }
   const mergedMapStateToProps = combineMapStateToProps(

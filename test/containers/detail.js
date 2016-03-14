@@ -41,3 +41,13 @@ test('test connectSingleItem with data', t => {
   t.end()
 });
 
+
+
+test('test connectSingleItem without crud', t => {
+  t.throws(
+    connectSingleItem,
+    /^Invariant Violation/,
+    'should throw an error'
+  );
+  t.end();
+});
