@@ -1,5 +1,6 @@
 import * as utils from '../../utils';
 
+import { folderNameFromOpts } from '../../utils';
 import { wrap } from './common';
 
 
@@ -12,11 +13,6 @@ export const createMapStateToProps = (mountPoint, folder='', propName) => functi
     folderVars: utils.getFolderVars(state[mountPoint], folder),
   };
 };
-
-
-export function folderNameFromOpts(options) {
-  return JSON.stringify(options);
-}
 
 
 export function isQuery(opts) {

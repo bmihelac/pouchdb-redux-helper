@@ -1,6 +1,6 @@
 import { createPromiseAction } from '../actions';
+import { folderNameFromOpts } from '../utils';
 import {
-  folderNameFromOpts,
   createMapStateToProps,
   isQuery,
   getListParams,
@@ -108,7 +108,7 @@ export function createMapStateToPropsPagination(paginationOpts={}, crud, opts={}
 }
 
 
-export default function paginate (paginationOpts, crud, connectListOpts, mapStateToProps, mapDispatchToProps) {
+export default function paginate (paginationOpts, crud, connectListOpts={}, mapStateToProps, mapDispatchToProps) {
   const mapStateToPropsFinal = createMapStateToPropsPagination(
     paginationOpts,
     crud,

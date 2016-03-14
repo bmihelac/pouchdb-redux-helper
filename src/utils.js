@@ -200,3 +200,15 @@ export function markDocumentDeleted(state, docId) {
 export function createDetailLink(urlPrefix, docId) {
   return urlPrefix + '/' + docId + '/';
 }
+
+
+/**
+ * folderNameFromOpts
+ *
+ * @param options
+ * @returns {string}
+ */
+export function folderNameFromOpts(options={}) {
+  return JSON.stringify(options);
+}
+

@@ -1,7 +1,6 @@
 export {
   createListAction,
   createMapStateToProps,
-  folderNameFromOpts,
   connectList,
 } from './containers/list';
 export {

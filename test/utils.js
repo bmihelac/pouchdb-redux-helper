@@ -52,3 +52,9 @@ test('test setQueryPayloadInState', t => {
   t.equal(folderVars.get('foo'), 'bar', 'should have foo in folderVars');
   t.end();
 });
+
+test('test folderNameFromOpts', t => {
+  t.equal(utils.folderNameFromOpts(), '{}');
+  t.equal(utils.folderNameFromOpts({}), '{}');
+  t.end();
+});
