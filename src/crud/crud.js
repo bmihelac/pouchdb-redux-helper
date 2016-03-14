@@ -1,4 +1,4 @@
-import { List, Map, fromJS } from 'immutable';
+import { Map } from 'immutable';
 import { createPromiseAction } from '../actions';
 import * as utils from '../utils';
 import { ACTIONS, TYPES } from '../constants';

@@ -1,5 +1,4 @@
 import * as utils from '../../utils';
-import { createPromiseAction } from '../../actions';
 
 import { wrap } from './common';
 
