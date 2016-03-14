@@ -229,7 +229,19 @@ const routes = (
 
 ### Pagination
 
-TODO: add example, docs
+Decorator connects and paginate wrapped Component.
+
+```js
+paginate(paginationOpts, crud, connectListOpts, mapStateToProps, mapDispatchToProps)
+```
+
+#### Options
+
+* `paginationOpts`:
+  * `paginationOpts.rowsPerPage`: rows per page
+  * `paginationOpts.startkey`: startkey
+
+Other options are equal to those in `connectList`.
 
 ## Example app
 
@@ -239,11 +251,13 @@ TODO: add example, docs
 
 ## TODO:
 
-* simplify connectList
 * upgrade babel to 6.x
 
 ## Changelog
 
+* 0.10.0 (non released)
+* 0.9.0
+    * fixes in pagination
 * 0.8.0
     * save extra things received from query/allDocs in `folderVars`.
       This includes `total_rows`, `offset`, `skip`.
