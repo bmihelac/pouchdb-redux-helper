@@ -168,3 +168,12 @@ test('test connectList with opts from mapStateToProps', t => {
   }))(MyListComponent);
   mount(<ListContainer store={store} />);
 });
+
+test('test connectList without crud', t => {
+  t.throws(
+    connectList,
+    /^Invariant Violation/,
+    'should throw an error'
+  );
+  t.end();
+});

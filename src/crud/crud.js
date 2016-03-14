@@ -1,3 +1,4 @@
+import invariant from 'invariant';
 import { Map } from 'immutable';
 import { createPromiseAction } from '../actions';
 import * as utils from '../utils';
@@ -21,6 +22,10 @@ export const INITIAL_STATE = Map({
  * @returns {Object} contains `actionTypes`, `actions`, `reducer`
  */
 export default function createCRUD(db, mountPoint, prefix=null, opts={}) {
+  invariant(
+    typeof db !== 'undefined',
+    'db is required'
+  );
   prefix = prefix || mountPoint;
   const urlPrefix = '/' + prefix;
 
