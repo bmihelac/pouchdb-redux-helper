@@ -72,6 +72,12 @@ export function paginateQuery(crud, opts, rowsPerPage, startkey) {
 }
 
 
+const loadItemsAction = (crud, finalOpts, rowsPerPage, startkey, toFolder) => createPromiseAction(
+  () => paginateQuery(crud, finalOpts, rowsPerPage, startkey),
+  crud.actionTypes.query,
+  {folder: toFolder},
+)
+
 export function createMapStateToPropsPagination(paginationOpts={}, crud, opts={}, mapStateToProps) {
 
   return (state, ownProps) => {
@@ -79,12 +85,14 @@ export function createMapStateToPropsPagination(paginationOpts={}, crud, opts={}
     // rowsPerPage and startkey can be given in mapStateToProps,
     // paginationOpts or defaultOpts
     const { rowsPerPage, startkey } = Object.assign(
+      {},
       defaultOpts,
       paginationOpts,
       props
     );
     // finalOpts from argument opts overriden with eventual listOpts from mapStateToProps
     const finalOpts = Object.assign(
+      {},
       opts,
       props.listOpts,
     )
@@ -92,16 +100,13 @@ export function createMapStateToPropsPagination(paginationOpts={}, crud, opts={}
       paginationFolderSuffix(rowsPerPage, startkey);
     const propName = finalOpts.propName || 'items';
     // add documents, folderVars to props
-    Object.assign(
+    props = Object.assign(
       props,
       createMapStateToProps(crud.mountPoint, toFolder, propName)(state)
     );
+    props.action = loadItemsAction;
+    props.actionArgs = [crud, finalOpts, rowsPerPage, startkey, toFolder];
     // assign action that loads items from db
-    props.action = () => createPromiseAction(
-      () => paginateQuery(crud, finalOpts, rowsPerPage, startkey),
-      crud.actionTypes.query,
-      {folder: toFolder},
-    )
     return props;
   }
 

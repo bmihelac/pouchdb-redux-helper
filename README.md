@@ -170,11 +170,14 @@ connectList(crud, opts={}, mapStateToProps, mapDispatchToProps)
 ##### Example usage
 
 ```js
-const ProjectList = ({items}) => (
-  <ul>
-  { items.map(item => <li key={item.get('_id')}>item.get('name')</li>) }
-  </ul>
-);
+const ProjectList = ({isLoading, items}) => {(
+  if (isLoading) {
+    return <div>loading...</div>
+  }
+  return (<ul>
+    { items.map(item => <li key={item.get('_id')}>item.get('name')</li>) }
+  </ul>)
+)};
 
 // connected component contains all documents
 export const ProjectListContainer = containers.connectList(
@@ -255,7 +258,13 @@ Other options are equal to those in `connectList`.
 
 ## Changelog
 
-* 0.10.0 (non released)
+* 0.10.0
+    * refactor loading decorator to always render passed component with
+      `isLoading` property instead of using custom `Loading` component
+    * loading component triggers load in componentWillReceiveProps
+    * loading component expect `action` as function and `actionArgs` as function
+      arguments.
+    * bugfixes
 * 0.9.0
     * fixes in pagination
 * 0.8.0

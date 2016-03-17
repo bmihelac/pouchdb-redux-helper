@@ -1,20 +1,9 @@
+var isEqual = require('lodash.isequal');
 import React, { Component } from 'react';
-
-
-export class Loading extends Component {
-  render() {
-    return (
-      <div className="loading">
-        {this.props.children}
-      </div>
-    );
-  }
-}
 
 
 const defaultOpts = {
   propName: 'items',
-  loadingText: 'loading...',
 }
 
 /**
@@ -37,12 +26,8 @@ export default function loading(loadFunction, opts={}) {
         return this.props.propName || options.propName;
       }
 
-      getLoadingText() {
-        return this.props.loadingText || options.loadingText;
-      }
-
-      hasItems() {
-        return !!this.props[this.getPropName()];
+      hasItems(props) {
+        return props[this.getPropName()];
       }
 
       getAction() {
@@ -53,26 +38,35 @@ export default function loading(loadFunction, opts={}) {
         return loadFunction;
       }
 
-      componentDidMount = () => {
-        if (!this.hasItems()) {
+      loadIfNeeded(props) {
+        if (!this.hasItems(props)) {
           const action = this.getAction();
-          action ? this.props.dispatch(action()) : this.getLoadFunction()(this);
+          if (action) {
+            this.props.dispatch(action.apply(this, props.actionArgs));
+          } else {
+            this.getLoadFunction()(this);
+          }
         }
+      }
+
+      componentDidMount = () => {
+        this.loadIfNeeded(this.props);
       }
 
       componentWillReceiveProps = nextProps => {
-        //if (!this.props[propName]) {
-          //loadFunction(this);
-        //}
+        if (this.props.action == nextProps.action &&
+            isEqual(this.props.actionArgs, nextProps.actionArgs)) {
+          return;
+        }
+        this.loadIfNeeded(nextProps);
       }
 
       render() {
-        if (!this.hasItems()) {
-          return (
-            <Loading>{ this.getLoadingText() }</Loading>
-          );
-        }
-        return <ComposedComponent { ...this.props } />;
+        const isLoading = !this.hasItems(this.props);
+        return <ComposedComponent
+          { ...this.props }
+          isLoading={ isLoading }
+        />;
       }
     }
   }

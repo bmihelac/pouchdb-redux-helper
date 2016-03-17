@@ -74,7 +74,8 @@ export function createMapStateToPropsList(crud, opts={}, mapStateToProps) {
       createMapStateToProps(crud.mountPoint, toFolder, propName)(state)
     );
 
-    props.action = () => createListAction(crud, toFolder, finalOpts, folderVars);
+    props.action = createListAction;
+    props.actionArgs = [crud, toFolder, finalOpts, folderVars];
     return props;
   }
 

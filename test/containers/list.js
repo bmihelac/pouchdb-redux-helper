@@ -31,7 +31,10 @@ const allDocsSuccessAction = {
 }
 
 
-const MyListComponent = ({ items }) => {
+const MyListComponent = ({ isLoading, items }) => {
+  if (isLoading) {
+    return <div className="loading" />
+  }
   return (
     <ul className="my-list">
       { items.map(item => {

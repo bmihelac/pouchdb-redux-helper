@@ -32,6 +32,7 @@
   "license": "MIT",
   "dependencies": {
     "invariant": "^2.2.1",
+    "lodash.isequal": "^4.1.1",
     "redux-thunk": "^1.0.3",
     "uuid": "^2.0.1"
   },

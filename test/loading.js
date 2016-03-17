@@ -9,7 +9,8 @@ import { mount } from 'enzyme';
 import loading from '../src/crud/loading';
 
 
-const MyListComponent = ({ items }) => {
+const MyListComponent = ({ isLoading, items }) => {
+  return <div />
 }
 
 test('loading with loadFunction', t => {
