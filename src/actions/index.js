@@ -26,6 +26,9 @@ export function createPromiseAction(fun, actionTypes, actionParams={}) {
         ...actionParams
       });
     }).catch(err => {
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(err.stack);
+      }
       dispatch({
         type: actionTypes.failure,
         err,
