@@ -258,6 +258,7 @@ Other options are equal to those in `connectList`.
 
 ## Changelog
 
+* 0.11.0 (unreleased)
 * 0.10.0
     * refactor loading decorator to always render passed component with
       `isLoading` property instead of using custom `Loading` component
