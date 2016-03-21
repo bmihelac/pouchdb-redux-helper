@@ -31,16 +31,26 @@ const MyDetailComponent = ({ item }) => (
 );
 
 
-test('test connectSingleItem with data', t => {
+test('test connectSingleItem with own property', t => {
   const Container = connectSingleItem(crud)(MyDetailComponent);
   store.dispatch(allDocsSuccessAction);
 
   const result = render(<Container docId={"id-1"} store={store}/>);
   t.equal(result.find('div.my-detail').length, 1);
-  debugger;
   t.end()
 });
 
+
+test('test connectSingleItem with mapStateToProps', t => {
+  const Container = connectSingleItem(crud, {}, state => ({
+    singleItemOpts: {docId: 'id-1'}
+  }))(MyDetailComponent);
+  store.dispatch(allDocsSuccessAction);
+
+  const result = render(<Container store={store}/>);
+  t.equal(result.find('div.my-detail').length, 1);
+  t.end()
+});
 
 
 test('test connectSingleItem without crud', t => {

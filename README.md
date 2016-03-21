@@ -193,7 +193,41 @@ export const StarredProjectListContainer = containers.connectList(
 
 #### connectSingleItem
 
-Decorator connects single document defined as component property `id`.
+Decorator connects wrapped Component with single document.
+`docId` would be resolved from:
+
+* component own property,
+* `mapStateToProps` function if it returns `detailOpt`,
+* `opts` argument
+
+##### Example usage
+
+```js
+export const ProjectDetail = ({isLoading, item, dispatch, onRemove}) => {
+  if (isLoading) {
+    return <div>loading...</div>
+  }
+  return (
+    <span>{ item.get('name') }</span>
+  )
+}
+
+// connected component with own property, ie:
+// <ProjectDetailContainer docId="project-1" />
+export const ProjectDetailContainer = containers.connectSingleItem(
+  projectsCrud, {}
+)(ProjectDetail);
+
+
+// connected component with docId from router
+// <ProjectDetailContainer />
+export const ProjectDetailContainerFromUrl = containers.connectSingleItem(
+  projectsCrud, {}, state => ({
+    singleItemOpts: {docId: state.router.params.id},
+  })
+)(ProjectDetail);
+```
+
 
 ##### Options
 
@@ -259,6 +293,7 @@ Other options are equal to those in `connectList`.
 ## Changelog
 
 * 0.11.0 (unreleased)
+    * refactor `connectSingleItem` to allow setting opts from `mapStateToProps`
 * 0.10.0
     * refactor loading decorator to always render passed component with
       `isLoading` property instead of using custom `Loading` component

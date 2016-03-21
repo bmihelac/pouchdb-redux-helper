@@ -7,7 +7,6 @@ export {
   connectSingleItem,
   createOnSubmitHandler,
   createOnRemoveHandler,
-  singleObjectMapStateToProps,
 } from './containers/detail';
 export {
   wrap,

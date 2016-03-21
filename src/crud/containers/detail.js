@@ -4,30 +4,6 @@ import uuid from 'uuid';
 import * as utils from '../../utils';
 import { wrap } from './common';
 
-/**
- * combines result of two mapStateToProps functions
- *
- * @param fun1
- * @param fun2
- * @returns {object} combined stateProps
- */
-function combineMapStateToProps(fun1, fun2) {
-  return (state, ownProps) => Object.assign(
-    {},
-    fun1(state, ownProps),
-    fun2 ? fun2(state, ownProps) : null
-  )
-}
-
-
-export const singleObjectMapStateToProps = (mountPoint, propName) => function singleObjectMapStateToProps(state, ownProps) {
-  const id = ownProps.docId;
-  return {
-    id,
-    [propName]: utils.getObjectFromState(state, mountPoint, id),
-  }
-};
-
 
 /**
  * Returns onSubmit handler that dispatch `put` action
@@ -62,6 +38,28 @@ export function createOnRemoveHandler(crud) {
 }
 
 
+export function createMapStateToPropsDetail(crud, opts={}, mapStateToProps) {
+
+  return (state, ownProps) => {
+    let props = mapStateToProps ? mapStateToProps(state, ownProps) : {};
+    const finalOpts = Object.assign(
+      {},
+      opts,
+      props.singleItemOpts,
+      ownProps,
+    )
+    const {propName='item', docId} = finalOpts;
+    props.propName = propName;
+    props[propName] = utils.getObjectFromState(state, crud.mountPoint, docId);
+    props.action = crud.actions.get;
+    props.actionArgs = [docId];
+    return props;
+  }
+
+}
+
+
+
 /**
  * Decorator connects passed component to include single document as `item`.
  *
@@ -72,12 +70,10 @@ export function connectSingleItem(crud, opts={}, mapStateToProps, mapDispatchToP
     typeof crud !== 'undefined',
     'crud is required parameter'
   );
-  const { propName = 'item' } = opts;
-  const loadFunction = c => { c.props.dispatch(crud.actions.get(c.props.id)); }
-  const mergedMapStateToProps = combineMapStateToProps(
-    singleObjectMapStateToProps(crud.mountPoint, propName),
+  const mapStateToPropsFinal = createMapStateToPropsDetail(
+    crud,
+    opts,
     mapStateToProps
-  )
-
-  return wrap(mergedMapStateToProps, mapDispatchToProps, loadFunction, { propName });
+  );
+  return wrap(mapStateToPropsFinal, mapDispatchToProps);
 };
