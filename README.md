@@ -292,7 +292,8 @@ Other options are equal to those in `connectList`.
 
 ## Changelog
 
-* 0.11.0 (unreleased)
+* 0.12.0 (unreleased)
+* 0.11.0
     * refactor `connectSingleItem` to allow setting opts from `mapStateToProps`
 * 0.10.0
     * refactor loading decorator to always render passed component with
