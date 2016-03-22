@@ -194,6 +194,15 @@ export const StarredProjectListContainer = containers.connectList(
 #### connectSingleItem
 
 Decorator connects wrapped Component with single document.
+
+##### Options
+
+* `crud`: crud obtained from `createCRUD`
+* `opts`:
+  * `propName="items"`: name of property to pass to wrapped component
+
+##### Properties
+
 `docId` would be resolved from:
 
 * component own property,
@@ -226,30 +235,6 @@ export const ProjectDetailContainerFromUrl = containers.connectSingleItem(
     singleItemOpts: {docId: state.router.params.id},
   })
 )(ProjectDetail);
-```
-
-
-##### Options
-
-* `crud`: crud obtained from `createCRUD`
-* `opts`:
-  * `propName="items"`: name of property to pass to wrapped component
-
-##### Properties
-
-* `docId`: document id
-
-##### Example usage
-
-```js
-const ProjectDetail = ({items, dispatch}) => (
-  <div>{ item.get('name') }</div>
-);
-
-// displays project with docId from url id param
-const ProjectDetailContainer = connect(state => ({ docId: state.router.params.id }))(
-  containers.connectSingleItem(projectsCrud)(ProjectDetail)
-)
 ```
 
 ### Routes creating helper
